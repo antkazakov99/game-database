@@ -20,18 +20,6 @@ GO
 
 USE GameDatabase;
 
--- Таблица "Разработчики"
-CREATE TABLE GameDatabase.dbo.Developers
-(
-	-- Столбцы
-	id		INTEGER			NOT NULL	IDENTITY,
-	title	NVARCHAR(255)	NOT NULL
-
-	-- Ограничения
-	CONSTRAINT PK_Developers
-		PRIMARY KEY CLUSTERED (id ASC)
-);
-
 -- Таблица "Издатели"
 CREATE TABLE GameDatabase.dbo.Publishers
 (
@@ -50,22 +38,45 @@ CREATE TABLE GameDatabase.dbo.Games
 	-- Столбцы
 	id				INTEGER			NOT NULL	IDENTITY,
 	title			NVARCHAR(255)	NOT NULL,
-	developer_id	INTEGER			NOT NULL,
 	publisher_id	INTEGER			NULL,
 	release_date	DATE			NULL
 
 	-- Ограничения
 	CONSTRAINT PK_Games
 		PRIMARY KEY CLUSTERED (id ASC),
-	CONSTRAINT FK_Games_Developers
-		FOREIGN KEY (developer_id)
-			REFERENCES dbo.Developers (id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE,
 	CONSTRAINT FK_Games_Publishers
 		FOREIGN KEY (publisher_id)
 			REFERENCES dbo.Publishers (id)
 			ON DELETE SET NULL
+			ON UPDATE CASCADE
+);
+
+-- Таблица "Разработчики"
+CREATE TABLE GameDatabase.dbo.Developers
+(
+	-- Столбцы
+	id		INTEGER			NOT NULL	IDENTITY,
+	title	NVARCHAR(255)	NOT NULL
+
+	-- Ограничения
+	CONSTRAINT PK_Developers
+		PRIMARY KEY CLUSTERED (id ASC)
+);
+
+-- Таблица "Игры - Разработчкики"
+CREATE TABLE GameDatabase.dbo.Games_Developers
+(
+	-- Столбцы
+	game_id			INTEGER	NOT NULL,
+	developer_id	INTEGER NOT NULL
+
+	-- Ограничения
+	CONSTRAINT PK_GamesDevelopers
+		PRIMARY KEY CLUSTERED (id ASC)
+	CONSTRAINT FK_GamesDevelopers_Games
+		FOREIGN KEY (game_id)
+			REFERENCES dbo.Games (id)
+			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );
 
