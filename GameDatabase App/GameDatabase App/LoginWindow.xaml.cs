@@ -10,24 +10,26 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace GameDatabase_App
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для LoginWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class LoginWindow : Window
     {
-        public MainWindow()
+        public LoginWindow()
         {
-            // Вход в приложение через логин
-            LoginWindow loginWindow = new LoginWindow();
-            if (!(bool)loginWindow.ShowDialog())
-                this.Close();
-
             InitializeComponent();
+        }
+
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Login.Text == "login" && Password.Password == "password")
+                DialogResult = true;
+            else
+                InvalidLogOrPassHint.Visibility = Visibility.Visible;
         }
     }
 }
