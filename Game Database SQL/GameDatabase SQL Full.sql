@@ -26,6 +26,7 @@ CREATE TABLE GameDatabase.dbo.Games
 	-- Столбцы
 	id				INTEGER			NOT NULL	IDENTITY,
 	title			NVARCHAR(255)	NOT NULL,
+	summary			NVARCHAR(MAX)	NOT NULL,
 	website			NVARCHAR(255)	NOT NULL,
 	release_date	DATE			NULL
 
