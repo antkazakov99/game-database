@@ -5,8 +5,56 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameDatabase_App"
         mc:Ignorable="d"
+        MinHeight="600" MinWidth="800"
         Title="Magnum opus">
-    <Grid>
-        
-    </Grid>
+    <DockPanel>
+        <StackPanel Width="300" Margin="5">
+            <Label Content="Средняя оценка:"/>
+            <DockPanel VerticalAlignment="Center" Margin="5">
+                <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreFromSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0"  VerticalContentAlignment="Center" />
+                <Label Content="С " Width="30"/>
+                <Slider x:Name="GameScoreFromSlider"
+                    Minimum="0" 
+                    Maximum="100" 
+                    Value="0" 
+                    TickPlacement="BottomRight" 
+                    TickFrequency="5" 
+                    IsSnapToTickEnabled="True" ValueChanged="GameScoreFromSlider_ValueChanged"/>
+            </DockPanel>
+            <DockPanel VerticalAlignment="Center" Margin="5">
+                <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreToSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0" VerticalContentAlignment="Center"/>
+                <Label Content="До" Width="30"/>
+                <Slider x:Name="GameScoreToSlider"
+                    Minimum="0" 
+                    Maximum="100" 
+                    Value="100" 
+                    TickPlacement="BottomRight" 
+                    TickFrequency="5" 
+                    IsSnapToTickEnabled="True" ValueChanged="GameScoreToSlider_ValueChanged"
+                    />
+            </DockPanel>
+            <Label Content="Название игры:"/>
+            <TextBox x:Name="GameTitleSearchTextBlock" />
+            <Label Content="Дата выхода:"/>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="с"/>
+                <DatePicker x:Name="GameReleaseFromDatePicker"/>
+                <Label Content="по"/>
+                <DatePicker x:Name="GameReleaseToDatePicker"/>
+            </StackPanel>
+            <Label Content="Разработчики:"/>
+            <StackPanel x:Name="SearchDevelopersList"/>
+            <Label Content="Издатели:"/>
+            <StackPanel x:Name="SearchPublishersList"/>
+            <Label Content="Жанры:"/>
+            <StackPanel x:Name="SearchGenresList"/>
+            <Label Content="Платформы:"/>
+            <StackPanel x:Name="SearchPlatformsList"/>
+            <Button x:Name="SearchButton" Click="SearchButton_Click" Content="Поиск" IsDefault="True"/>
+            <Button x:Name="ClearSearchButton" Click="ClearSearchButton_Click" Content="Очистить"/>
+        </StackPanel>
+        <ScrollViewer>
+            <StackPanel x:Name="GamesList"/>
+        </ScrollViewer>
+    </DockPanel>
 </Window>
