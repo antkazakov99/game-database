@@ -137,9 +137,10 @@ namespace GameDatabase_App
                         };
                         gameScoreBorder.Child = new Label()
                         {
+                            FontSize = 24,
                             HorizontalAlignment = HorizontalAlignment.Center,
                             VerticalAlignment = VerticalAlignment.Center,
-                            Content = "-"
+                            Content = dataReader.IsDBNull(4) ? "-" : dataReader.GetInt32(4).ToString()
                         };
                         gameTileGrid.Children.Add(gameScoreBorder);
                         Grid.SetColumn(gameScoreBorder, 2);
