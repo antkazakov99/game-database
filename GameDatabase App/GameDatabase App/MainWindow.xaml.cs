@@ -25,6 +25,7 @@ namespace GameDatabase_App
         {
             InitializeComponent();
             ShowGames();
+            UpdateSearchParameters();
         }
 
         // Получение списка игр по указанным параметрам поиска  
@@ -93,7 +94,7 @@ namespace GameDatabase_App
                         };
                         gameCoverBorder.Child = new Image()
                         {
-                            Source = new BitmapImage(new Uri(@"C:\Users\antka\Downloads\51XiGWHvaZL.jpg", UriKind.RelativeOrAbsolute)),
+                         //   Source = new BitmapImage(new Uri(@"C:\Users\antka\Downloads\51XiGWHvaZL.jpg", UriKind.RelativeOrAbsolute)),
                             Stretch = Stretch.Uniform
                         };
                         gameTileGrid.Children.Add(gameCoverBorder);
@@ -260,6 +261,62 @@ namespace GameDatabase_App
                 terms++;
             }
 
+            foreach(CheckBox developer in SearchDevelopersList.Children)
+            {
+                if ((bool)developer.IsChecked)
+                {
+                    if (terms == 0)
+                        command.CommandText += @" WHERE";
+                    else
+                        command.CommandText += @" AND";
+                    command.Parameters.Add(new SqlParameter($"@developer{developer.Tag}", developer.Tag));
+                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Developers WHERE developer_id = @developer{developer.Tag})";
+                    terms++;
+                }
+            }
+
+            foreach (CheckBox publisher in SearchPublishersList.Children)
+            {
+                if ((bool)publisher.IsChecked)
+                {
+                    if (terms == 0)
+                        command.CommandText += @" WHERE";
+                    else
+                        command.CommandText += @" AND";
+                    command.Parameters.Add(new SqlParameter($"@publisher{publisher.Tag}", publisher.Tag));
+                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Publishers WHERE publisher_id = @publisher{publisher.Tag})";
+                    terms++;
+                }
+            }
+
+            foreach (CheckBox genre in SearchGenresList.Children)
+            {
+                if ((bool)genre.IsChecked)
+                {
+                    if (terms == 0)
+                        command.CommandText += @" WHERE";
+                    else
+                        command.CommandText += @" AND";
+                    command.Parameters.Add(new SqlParameter($"@genre{genre.Tag}", genre.Tag));
+                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Genres WHERE genre_id = @genre{genre.Tag})";
+                    terms++;
+                }
+            }
+
+            foreach (CheckBox platform in SearchPlatformsList.Children)
+            {
+                if ((bool)platform.IsChecked)
+                {
+                    if (terms == 0)
+                        command.CommandText += @" WHERE";
+                    else
+                        command.CommandText += @" AND";
+                    command.Parameters.Add(new SqlParameter($"@platform{platform.Tag}", platform.Tag));
+                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Platforms WHERE platform_id = @platform{platform.Tag})";
+                    terms++;
+                }
+            }
+
             return command;
         }
 
@@ -275,6 +332,22 @@ namespace GameDatabase_App
             GameReleaseToDatePicker.SelectedDate = null;
             GameScoreFromSlider.Value = 0;
             GameScoreToSlider.Value = 100;
+            foreach (CheckBox developer in SearchDevelopersList.Children)
+            {
+                developer.IsChecked = false;
+            }
+            foreach (CheckBox publisher in SearchPublishersList.Children)
+            {
+                publisher.IsChecked = false;
+            }
+            foreach (CheckBox genre in SearchGenresList.Children)
+            {
+                genre.IsChecked = false;
+            }
+            foreach (CheckBox platform in SearchPlatformsList.Children)
+            {
+                platform.IsChecked = false;
+            }
         }
 
         private void GameScoreFromSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -287,6 +360,106 @@ namespace GameDatabase_App
         {
             if (e.NewValue < GameScoreFromSlider.Value)
                 GameScoreToSlider.Value = e.OldValue;
+        }
+
+        // Загрузка в раздел поиска информации о разработчиках, издателях, жанрах и платформах
+        private void UpdateSearchParameters()
+        {
+            // Очистка списка
+            SearchDevelopersList.Children.Clear();
+            // Формирование строки подключения
+            SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder()
+            {
+                DataSource = "DESKTOP-HOME",
+                InitialCatalog = "GameDatabase",
+                IntegratedSecurity = true
+            };
+            try
+            {
+                // Подключение
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString })
+                {
+                    // Открытие подключения
+                    connection.Open();
+                    // Команда sql
+                    SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Developers ORDER BY title ASC", connection);
+                    // Выполнение запроса   
+                    SqlDataReader dataReader = command.ExecuteReader();
+                    //Проверка наличия строк
+                    if (dataReader.HasRows)
+                    {
+                        while (dataReader.Read())
+                        {
+                            CheckBox developer = new CheckBox()
+                            {
+                                Tag = dataReader.GetInt32(0),
+                                Content = dataReader.GetString(1),
+                                FontSize = 11
+                            };
+                            SearchDevelopersList.Children.Add(developer);
+                        }
+                        dataReader.Close();
+                    }
+                    command.CommandText = "SELECT id, title FROM dbo.Publishers ORDER BY title ASC";
+                    // Выполнение запроса   
+                    dataReader = command.ExecuteReader();
+                    //Проверка наличия строк
+                    if (dataReader.HasRows)
+                    {
+                        while (dataReader.Read())
+                        {
+                            CheckBox publisher = new CheckBox()
+                            {
+                                Tag = dataReader.GetInt32(0),
+                                Content = dataReader.GetString(1),
+                                FontSize = 11
+                            };
+                            SearchPublishersList.Children.Add(publisher);
+                        }
+                        dataReader.Close();
+                    }
+                    command.CommandText = "SELECT id, title FROM dbo.Genres ORDER BY title ASC";
+                    // Выполнение запроса   
+                    dataReader = command.ExecuteReader();
+                    //Проверка наличия строк
+                    if (dataReader.HasRows)
+                    {
+                        while (dataReader.Read())
+                        {
+                            CheckBox genre = new CheckBox()
+                            {
+                                Tag = dataReader.GetInt32(0),
+                                Content = dataReader.GetString(1),
+                                FontSize = 11
+                            };
+                            SearchGenresList.Children.Add(genre);
+                        }
+                        dataReader.Close();
+                    }
+                    command.CommandText = "SELECT id, title FROM dbo.Platforms ORDER BY title ASC";
+                    // Выполнение запроса   
+                    dataReader = command.ExecuteReader();
+                    //Проверка наличия строк
+                    if (dataReader.HasRows)
+                    {
+                        while (dataReader.Read())
+                        {
+                            CheckBox genre = new CheckBox()
+                            {
+                                Tag = dataReader.GetInt32(0),
+                                Content = dataReader.GetString(1),
+                                FontSize = 11
+                            };
+                            SearchPlatformsList.Children.Add(genre);
+                        }
+                        dataReader.Close();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"В процессе получения данных произошла ошибка:\n{ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

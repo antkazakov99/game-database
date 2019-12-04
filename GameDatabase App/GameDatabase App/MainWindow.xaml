@@ -42,6 +42,14 @@
                 <Label Content="по"/>
                 <DatePicker x:Name="GameReleaseToDatePicker"/>
             </StackPanel>
+            <Label Content="Разработчики:"/>
+            <StackPanel x:Name="SearchDevelopersList"/>
+            <Label Content="Издатели:"/>
+            <StackPanel x:Name="SearchPublishersList"/>
+            <Label Content="Жанры:"/>
+            <StackPanel x:Name="SearchGenresList"/>
+            <Label Content="Платформы:"/>
+            <StackPanel x:Name="SearchPlatformsList"/>
             <Button x:Name="SearchButton" Click="SearchButton_Click" Content="Поиск" IsDefault="True"/>
             <Button x:Name="ClearSearchButton" Click="ClearSearchButton_Click" Content="Очистить"/>
         </StackPanel>
