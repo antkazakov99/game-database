@@ -212,18 +212,81 @@ namespace GameDatabase_App
             {
                 command.Parameters.Add(new SqlParameter("@title", '%' + GameTitleSearchTextBlock.Text + '%'));
                 command.CommandText += 
-                    @"  WHERE 
-                            dbo.Games.Title 
-                            LIKE @title";
+                    @" WHERE dbo.Games.Title LIKE @title";
                 terms++;
             }
-                
+
+            if(GameReleaseFromDatePicker.SelectedDate != null)
+            {
+                if (terms == 0)
+                    command.CommandText += @" WHERE";
+                else
+                    command.CommandText += @" AND";
+                command.Parameters.Add(new SqlParameter("@releaseDateFrom", GameReleaseFromDatePicker.SelectedDate));
+                command.CommandText += $@" dbo.Games.release_date >= @releaseDateFrom";
+                terms++;
+            }
+
+            if (GameReleaseToDatePicker.SelectedDate != null)
+            {
+                if (terms == 0)
+                    command.CommandText += @" WHERE";
+                else
+                    command.CommandText += @" AND";
+                command.Parameters.Add(new SqlParameter("@releaseDateTo", GameReleaseToDatePicker.SelectedDate));
+                command.CommandText += $@" dbo.Games.release_date <= @releaseDateTo";
+                terms++;
+            }
+
+            if (GameScoreFromSlider.Value > 0)
+            {
+                if (terms == 0)
+                    command.CommandText += @" WHERE";
+                else
+                    command.CommandText += @" AND";
+                command.Parameters.Add(new SqlParameter("@scoreFrom", GameScoreFromSlider.Value));
+                command.CommandText += $@" GameScore.avg_score >= @scoreFrom";
+                terms++;
+            }
+
+            if (GameScoreToSlider.Value < 100)
+            {
+                if (terms == 0)
+                    command.CommandText += @" WHERE";
+                else
+                    command.CommandText += @" AND";
+                command.Parameters.Add(new SqlParameter("@scoreTo", GameScoreToSlider.Value));
+                command.CommandText += $@" GameScore.avg_score <= @scoreTo";
+                terms++;
+            }
+
             return command;
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             ShowGames();
+        }
+
+        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameTitleSearchTextBlock.Clear();
+            GameReleaseFromDatePicker.SelectedDate = null;
+            GameReleaseToDatePicker.SelectedDate = null;
+            GameScoreFromSlider.Value = 0;
+            GameScoreToSlider.Value = 100;
+        }
+
+        private void GameScoreFromSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (e.NewValue > GameScoreToSlider.Value)
+                GameScoreFromSlider.Value = e.OldValue;
+        }
+
+        private void GameScoreToSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (e.NewValue < GameScoreFromSlider.Value)
+                GameScoreToSlider.Value = e.OldValue;
         }
     }
 }

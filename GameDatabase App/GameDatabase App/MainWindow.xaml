@@ -8,10 +8,42 @@
         MinHeight="600" MinWidth="800"
         Title="Magnum opus">
     <DockPanel>
-        <StackPanel Width="300">
+        <StackPanel Width="300" Margin="5">
+            <Label Content="Средняя оценка:"/>
+            <DockPanel VerticalAlignment="Center" Margin="5">
+                <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreFromSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0"  VerticalContentAlignment="Center" />
+                <Label Content="С " Width="30"/>
+                <Slider x:Name="GameScoreFromSlider"
+                    Minimum="0" 
+                    Maximum="100" 
+                    Value="0" 
+                    TickPlacement="BottomRight" 
+                    TickFrequency="5" 
+                    IsSnapToTickEnabled="True" ValueChanged="GameScoreFromSlider_ValueChanged"/>
+            </DockPanel>
+            <DockPanel VerticalAlignment="Center" Margin="5">
+                <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreToSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0" VerticalContentAlignment="Center"/>
+                <Label Content="До" Width="30"/>
+                <Slider x:Name="GameScoreToSlider"
+                    Minimum="0" 
+                    Maximum="100" 
+                    Value="100" 
+                    TickPlacement="BottomRight" 
+                    TickFrequency="5" 
+                    IsSnapToTickEnabled="True" ValueChanged="GameScoreToSlider_ValueChanged"
+                    />
+            </DockPanel>
             <Label Content="Название игры:"/>
             <TextBox x:Name="GameTitleSearchTextBlock" />
-            <Button x:Name="SearchButton" Click="SearchButton_Click" Content="Поиск"/>
+            <Label Content="Дата выхода:"/>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="с"/>
+                <DatePicker x:Name="GameReleaseFromDatePicker"/>
+                <Label Content="по"/>
+                <DatePicker x:Name="GameReleaseToDatePicker"/>
+            </StackPanel>
+            <Button x:Name="SearchButton" Click="SearchButton_Click" Content="Поиск" IsDefault="True"/>
+            <Button x:Name="ClearSearchButton" Click="ClearSearchButton_Click" Content="Очистить"/>
         </StackPanel>
         <ScrollViewer>
             <StackPanel x:Name="GamesList"/>
