@@ -30,6 +30,8 @@ namespace GameDatabase_App
         // Получение списка игр по указанным параметрам поиска  
         private void ShowGames()
         {
+            // Очистка списка
+            GamesList.Children.Clear();
             // Формирование строки подключения
             SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder() 
             { 
@@ -37,34 +39,13 @@ namespace GameDatabase_App
                 InitialCatalog = "GameDatabase", 
                 IntegratedSecurity = true 
             };
-            // Текст запроса
-            string sqlExpression =
-                @"  SELECT
-	                    dbo.Games.id,
-	                    dbo.Games.title,
-                        dbo.Games.summary,
-	                    dbo.Games.release_date,
-	                    GameScore.avg_score
-                    FROM
-	                    dbo.Games
-	                    LEFT OUTER JOIN
-	                    (
-		                    SELECT 
-			                    game_id, 
-			                    AVG(score) AS avg_score
-		                    FROM
-			                    dbo.Reviews
-		                    GROUP BY
-			                    dbo.Reviews.game_id
-	                    ) AS GameScore
-		                    ON  dbo.Games.id = GameScore.game_id";
             // Подключение
             using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString})
             {
                 // Открытие подключения
                 connection.Open();
                 // Команда sql
-                SqlCommand command = new SqlCommand(sqlExpression, connection);
+                SqlCommand command = GenerateSqlCommand(connection);
                 // Выполнение запроса   
                 SqlDataReader dataReader = command.ExecuteReader();
                 //Проверка наличия строк
@@ -196,6 +177,52 @@ namespace GameDatabase_App
                     }
                 }
             }
+        }
+    
+        private SqlCommand GenerateSqlCommand(SqlConnection connection)
+        {
+            int terms = 0;
+            SqlCommand command = new SqlCommand()
+            {
+                CommandText =
+                @"  SELECT
+	                    dbo.Games.id,
+	                    dbo.Games.title,
+                        dbo.Games.summary,
+	                    dbo.Games.release_date,
+	                    GameScore.avg_score
+                    FROM
+	                    dbo.Games
+	                    LEFT OUTER JOIN
+	                    (
+		                    SELECT 
+			                    game_id, 
+			                    AVG(score) AS avg_score
+		                    FROM
+			                    dbo.Reviews
+		                    GROUP BY
+			                    dbo.Reviews.game_id
+	                    ) AS GameScore
+		                    ON  dbo.Games.id = GameScore.game_id",
+                Connection = connection
+            };
+
+            if(GameTitleSearchTextBlock.Text.Length > 0)
+            {
+                command.Parameters.Add(new SqlParameter("@title", '%' + GameTitleSearchTextBlock.Text + '%'));
+                command.CommandText += 
+                    @"  WHERE 
+                            dbo.Games.Title 
+                            LIKE @title";
+                terms++;
+            }
+                
+            return command;
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowGames();
         }
     }
 }
