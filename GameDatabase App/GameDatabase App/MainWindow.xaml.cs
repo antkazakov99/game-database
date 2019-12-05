@@ -94,7 +94,6 @@ namespace GameDatabase_App
                         };
                         gameCoverBorder.Child = new Image()
                         {
-                         //   Source = new BitmapImage(new Uri(@"C:\Users\antka\Downloads\51XiGWHvaZL.jpg", UriKind.RelativeOrAbsolute)),
                             Stretch = Stretch.Uniform
                         };
                         gameTileGrid.Children.Add(gameCoverBorder);
@@ -167,11 +166,13 @@ namespace GameDatabase_App
                         // -----------------------------------------------
                         Button gameMoreInfoButton = new Button()
                         {
+                            Tag = dataReader.GetInt32(0),
                             Padding = new Thickness(3),
                             Margin = new Thickness(5),
                             HorizontalAlignment = HorizontalAlignment.Right,
                             Content = "Подробнее..."
                         };
+                        gameMoreInfoButton.Click += GameMoreInfoButton_Click;
                         gameTileGrid.Children.Add(gameMoreInfoButton);
                         Grid.SetColumn(gameMoreInfoButton, 1);
                         Grid.SetColumnSpan(gameMoreInfoButton, 3);
@@ -562,6 +563,16 @@ namespace GameDatabase_App
             {
                 MessageBox.Show($"В процессе получения данных произошла ошибка:\n{ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // Открытие окна игры
+        private void GameMoreInfoButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag)
+            {
+
+            };
+            gameWindow.Show();
         }
     }
 }

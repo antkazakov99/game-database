@@ -75,7 +75,7 @@
             <Button x:Name="ClearSearchButton" Click="ClearSearchButton_Click" Content="Очистить"/>
         </StackPanel>
         <ScrollViewer Grid.Column="1" Grid.RowSpan="2">
-            <StackPanel x:Name="GamesList"/>
+            <StackPanel x:Name="GamesList" MaxWidth="1000"/>
         </ScrollViewer>
     </Grid>
 </Window>
