@@ -7,33 +7,42 @@
         mc:Ignorable="d"
         MinHeight="600" MinWidth="800"
         Title="Magnum opus">
-    <DockPanel>
-        <StackPanel Width="300" Margin="5">
-            <Label Content="Сортировать по:"/>
-            <ComboBox x:Name="SortByComboBox">
-                <ComboBoxItem Tag="0" Content="Название (По возростанию)" IsSelected="True"/>
-                <ComboBoxItem Tag="1" Content="Название (По убыванию)"/>
-                <ComboBoxItem Tag="2" Content="Дата (По возростанию)"/>
-                <ComboBoxItem Tag="3" Content="Дата (По убыванию)"/>
-                <ComboBoxItem Tag="4" Content="Оценка (По возростанию)"/>
-                <ComboBoxItem Tag="5" Content="Оценка (По убыванию)"/>
-            </ComboBox>
-            <Label Content="Средняя оценка:"/>
-            <DockPanel VerticalAlignment="Center" Margin="5">
-                <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreFromSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0"  VerticalContentAlignment="Center" />
-                <Label Content="С " Width="30"/>
-                <Slider x:Name="GameScoreFromSlider"
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer>
+            <StackPanel Width="300" Margin="5">
+                <Label Content="Сортировать по:"/>
+                <ComboBox x:Name="SortByComboBox">
+                    <ComboBoxItem Tag="0" Content="Название (По возростанию)" IsSelected="True"/>
+                    <ComboBoxItem Tag="1" Content="Название (По убыванию)"/>
+                    <ComboBoxItem Tag="2" Content="Дата (По возростанию)"/>
+                    <ComboBoxItem Tag="3" Content="Дата (По убыванию)"/>
+                    <ComboBoxItem Tag="4" Content="Оценка (По возростанию)"/>
+                    <ComboBoxItem Tag="5" Content="Оценка (По убыванию)"/>
+                </ComboBox>
+                <Label Content="Средняя оценка:"/>
+                <DockPanel VerticalAlignment="Center" Margin="5">
+                    <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreFromSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0"  VerticalContentAlignment="Center" />
+                    <Label Content="С " Width="30"/>
+                    <Slider x:Name="GameScoreFromSlider"
                     Minimum="0" 
                     Maximum="100" 
                     Value="0" 
                     TickPlacement="BottomRight" 
                     TickFrequency="5" 
                     IsSnapToTickEnabled="True" ValueChanged="GameScoreFromSlider_ValueChanged"/>
-            </DockPanel>
-            <DockPanel VerticalAlignment="Center" Margin="5">
-                <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreToSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0" VerticalContentAlignment="Center"/>
-                <Label Content="До" Width="30"/>
-                <Slider x:Name="GameScoreToSlider"
+                </DockPanel>
+                <DockPanel VerticalAlignment="Center" Margin="5">
+                    <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreToSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0" VerticalContentAlignment="Center"/>
+                    <Label Content="До" Width="30"/>
+                    <Slider x:Name="GameScoreToSlider"
                     Minimum="0" 
                     Maximum="100" 
                     Value="100" 
@@ -41,29 +50,32 @@
                     TickFrequency="5" 
                     IsSnapToTickEnabled="True" ValueChanged="GameScoreToSlider_ValueChanged"
                     />
-            </DockPanel>
-            <Label Content="Название игры:"/>
-            <TextBox x:Name="GameTitleSearchTextBlock" />
-            <Label Content="Дата выхода:"/>
-            <StackPanel Orientation="Horizontal">
-                <Label Content="с"/>
-                <DatePicker x:Name="GameReleaseFromDatePicker"/>
-                <Label Content="по"/>
-                <DatePicker x:Name="GameReleaseToDatePicker"/>
+                </DockPanel>
+                <Label Content="Название игры:"/>
+                <TextBox x:Name="GameTitleSearchTextBlock" />
+                <Label Content="Дата выхода:"/>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="с"/>
+                    <DatePicker x:Name="GameReleaseFromDatePicker"/>
+                    <Label Content="по"/>
+                    <DatePicker x:Name="GameReleaseToDatePicker"/>
+                </StackPanel>
+                <Label Content="Разработчики:"/>
+                <StackPanel x:Name="SearchDevelopersList"/>
+                <Label Content="Издатели:"/>
+                <StackPanel x:Name="SearchPublishersList"/>
+                <Label Content="Жанры:"/>
+                <StackPanel x:Name="SearchGenresList"/>
+                <Label Content="Платформы:"/>
+                <StackPanel x:Name="SearchPlatformsList"/>
             </StackPanel>
-            <Label Content="Разработчики:"/>
-            <StackPanel x:Name="SearchDevelopersList"/>
-            <Label Content="Издатели:"/>
-            <StackPanel x:Name="SearchPublishersList"/>
-            <Label Content="Жанры:"/>
-            <StackPanel x:Name="SearchGenresList"/>
-            <Label Content="Платформы:"/>
-            <StackPanel x:Name="SearchPlatformsList"/>
+        </ScrollViewer>
+        <StackPanel Grid.Row="1">
             <Button x:Name="SearchButton" Click="SearchButton_Click" Content="Поиск" IsDefault="True"/>
             <Button x:Name="ClearSearchButton" Click="ClearSearchButton_Click" Content="Очистить"/>
         </StackPanel>
-        <ScrollViewer>
+        <ScrollViewer Grid.Column="1" Grid.RowSpan="2">
             <StackPanel x:Name="GamesList"/>
         </ScrollViewer>
-    </DockPanel>
+    </Grid>
 </Window>
