@@ -447,6 +447,7 @@ namespace GameDatabase_App
             {
                 platform.IsChecked = false;
             }
+            SortByComboBox.SelectedIndex = 0;
         }
 
         // Значение слайдера не может быть выше значения второго слайдера
