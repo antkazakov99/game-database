@@ -40,145 +40,152 @@ namespace GameDatabase_App
                 InitialCatalog = "GameDatabase", 
                 IntegratedSecurity = true 
             };
-            // Подключение
-            using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString})
+            try
             {
-                // Открытие подключения
-                connection.Open();
-                // Команда sql
-                SqlCommand command = GenerateSqlCommand(connection);
-                // Выполнение запроса   
-                SqlDataReader dataReader = command.ExecuteReader();
-                //Проверка наличия строк
-                if (dataReader.HasRows)
+                // Подключение
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString })
                 {
-                    while(dataReader.Read())
+                    // Открытие подключения
+                    connection.Open();
+                    // Команда sql
+                    SqlCommand command = GenerateSqlCommand(connection);
+                    // Выполнение запроса   
+                    SqlDataReader dataReader = command.ExecuteReader();
+                    //Проверка наличия строк
+                    if (dataReader.HasRows)
                     {
-                        // Добавление разделителя строк
-                        // -----------------------------------------------
-                        if (GamesList.Children.Count > 0)
-                            GamesList.Children.Add(new Separator());
-                        // -----------------------------------------------
+                        while (dataReader.Read())
+                        {
+                            // Добавление разделителя строк
+                            // -----------------------------------------------
+                            if (GamesList.Children.Count > 0)
+                                GamesList.Children.Add(new Separator());
+                            // -----------------------------------------------
 
-                        // Создание Grid в который будет компоноваться Tile
-                        // -----------------------------------------------
-                        Grid gameTileGrid = new Grid()
-                        {
-                            Height = 210,
-                            //ShowGridLines = true,
-                            //Background = new SolidColorBrush(Colors.LightGray),
-                            Margin = new Thickness(2)
-                        };
-                        GamesList.Children.Add(gameTileGrid);
-                        // Столбцы
-                        gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                        gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                        gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                        // Строки
-                        gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                        gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                        gameTileGrid.RowDefinitions.Add(new RowDefinition());
-                        gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                        // -----------------------------------------------
+                            // Создание Grid в который будет компоноваться Tile
+                            // -----------------------------------------------
+                            Grid gameTileGrid = new Grid()
+                            {
+                                Height = 210,
+                                //ShowGridLines = true,
+                                //Background = new SolidColorBrush(Colors.LightGray),
+                                Margin = new Thickness(2)
+                            };
+                            GamesList.Children.Add(gameTileGrid);
+                            // Столбцы
+                            gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                            gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                            gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                            // Строки
+                            gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                            gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                            gameTileGrid.RowDefinitions.Add(new RowDefinition());
+                            gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                            // -----------------------------------------------
 
-                        // Обложка игры
-                        // -----------------------------------------------
-                        Border gameCoverBorder = new Border()
-                        {
-                            BorderThickness = new Thickness(1),
-                            BorderBrush = new SolidColorBrush(Colors.Black),
-                            Margin = new Thickness(5),
-                            Height = 180,
-                            Width = 120,
-                            VerticalAlignment = VerticalAlignment.Top
-                        };
-                        gameCoverBorder.Child = new Image()
-                        {
-                            Stretch = Stretch.Uniform
-                        };
-                        gameTileGrid.Children.Add(gameCoverBorder);
-                        Grid.SetRowSpan(gameCoverBorder, 4);
-                        // -----------------------------------------------
+                            // Обложка игры
+                            // -----------------------------------------------
+                            Border gameCoverBorder = new Border()
+                            {
+                                BorderThickness = new Thickness(1),
+                                BorderBrush = new SolidColorBrush(Colors.Black),
+                                Margin = new Thickness(5),
+                                Height = 180,
+                                Width = 120,
+                                VerticalAlignment = VerticalAlignment.Top
+                            };
+                            gameCoverBorder.Child = new Image()
+                            {
+                                Stretch = Stretch.Uniform
+                            };
+                            gameTileGrid.Children.Add(gameCoverBorder);
+                            Grid.SetRowSpan(gameCoverBorder, 4);
+                            // -----------------------------------------------
 
-                        // Название игры
-                        // -----------------------------------------------
-                        Label gameTitleLabel = new Label()
-                        {
-                            Content = dataReader.GetString(1),
-                            FontSize = 18
-                        };
-                        gameTileGrid.Children.Add(gameTitleLabel);
-                        Grid.SetColumn(gameTitleLabel, 1);
-                        // -----------------------------------------------
+                            // Название игры
+                            // -----------------------------------------------
+                            Label gameTitleLabel = new Label()
+                            {
+                                Content = dataReader.GetString(1),
+                                FontSize = 18
+                            };
+                            gameTileGrid.Children.Add(gameTitleLabel);
+                            Grid.SetColumn(gameTitleLabel, 1);
+                            // -----------------------------------------------
 
-                        // Дата выхода игры
-                        // -----------------------------------------------
-                        Label gameReleaseDateLabel = new Label()
-                        {
-                            Content = $"Дата выхода: " +
-                            $"{(dataReader.IsDBNull(3) ? "TBA" : DateTime.Parse(dataReader.GetDateTime(3).ToString()).ToShortDateString())}",
-                            FontSize = 10
-                        };
-                        gameTileGrid.Children.Add(gameReleaseDateLabel);
-                        Grid.SetColumn(gameReleaseDateLabel, 1);
-                        Grid.SetRow(gameReleaseDateLabel, 1);
-                        // -----------------------------------------------
+                            // Дата выхода игры
+                            // -----------------------------------------------
+                            Label gameReleaseDateLabel = new Label()
+                            {
+                                Content = $"Дата выхода: " +
+                                $"{(dataReader.IsDBNull(3) ? "TBA" : DateTime.Parse(dataReader.GetDateTime(3).ToString()).ToShortDateString())}",
+                                FontSize = 10
+                            };
+                            gameTileGrid.Children.Add(gameReleaseDateLabel);
+                            Grid.SetColumn(gameReleaseDateLabel, 1);
+                            Grid.SetRow(gameReleaseDateLabel, 1);
+                            // -----------------------------------------------
 
-                        // Оценка игры
-                        // -----------------------------------------------
-                        Border gameScoreBorder = new Border()
-                        {
-                            Background = dataReader.IsDBNull(4) || dataReader.GetInt32(4) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetInt32(4) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen)),
-                            Margin = new Thickness(5),
-                            BorderThickness = new Thickness(1),
-                            BorderBrush = new SolidColorBrush(Colors.Black),
-                            Height = 50,
-                            Width = 50
-                        };
-                        gameScoreBorder.Child = new Label()
-                        {
-                            FontSize = 24,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            VerticalAlignment = VerticalAlignment.Center,
-                            Content = dataReader.IsDBNull(4) ? "-" : dataReader.GetInt32(4).ToString()
-                        };
-                        gameTileGrid.Children.Add(gameScoreBorder);
-                        Grid.SetColumn(gameScoreBorder, 2);
-                        Grid.SetRow(gameScoreBorder, 0);
-                        Grid.SetRowSpan(gameScoreBorder, 2);
-                        // -----------------------------------------------
+                            // Оценка игры
+                            // -----------------------------------------------
+                            Border gameScoreBorder = new Border()
+                            {
+                                Background = dataReader.IsDBNull(4) || dataReader.GetInt32(4) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetInt32(4) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen)),
+                                Margin = new Thickness(5),
+                                BorderThickness = new Thickness(1),
+                                BorderBrush = new SolidColorBrush(Colors.Black),
+                                Height = 50,
+                                Width = 50
+                            };
+                            gameScoreBorder.Child = new Label()
+                            {
+                                FontSize = 24,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                VerticalAlignment = VerticalAlignment.Center,
+                                Content = dataReader.IsDBNull(4) ? "-" : dataReader.GetInt32(4).ToString()
+                            };
+                            gameTileGrid.Children.Add(gameScoreBorder);
+                            Grid.SetColumn(gameScoreBorder, 2);
+                            Grid.SetRow(gameScoreBorder, 0);
+                            Grid.SetRowSpan(gameScoreBorder, 2);
+                            // -----------------------------------------------
 
-                        // Описание игры
-                        // -----------------------------------------------
-                        TextBlock gameSummaryTextBlock = new TextBlock()
-                        {
-                            Text = dataReader.GetString(2),
-                            TextWrapping = TextWrapping.Wrap,
-                            Margin = new Thickness(3)
-                        };
-                        Grid.SetColumn(gameSummaryTextBlock, 1);
-                        Grid.SetRow(gameSummaryTextBlock, 2);
-                        Grid.SetColumnSpan(gameSummaryTextBlock, 2);
-                        gameTileGrid.Children.Add(gameSummaryTextBlock);
-                        // -----------------------------------------------
+                            // Описание игры
+                            // -----------------------------------------------
+                            TextBlock gameSummaryTextBlock = new TextBlock()
+                            {
+                                Text = dataReader.GetString(2),
+                                TextWrapping = TextWrapping.Wrap,
+                                Margin = new Thickness(3)
+                            };
+                            Grid.SetColumn(gameSummaryTextBlock, 1);
+                            Grid.SetRow(gameSummaryTextBlock, 2);
+                            Grid.SetColumnSpan(gameSummaryTextBlock, 2);
+                            gameTileGrid.Children.Add(gameSummaryTextBlock);
+                            // -----------------------------------------------
 
-                        // Кнопка
-                        // -----------------------------------------------
-                        Button gameMoreInfoButton = new Button()
-                        {
-                            Tag = dataReader.GetInt32(0),
-                            Padding = new Thickness(3),
-                            Margin = new Thickness(5),
-                            HorizontalAlignment = HorizontalAlignment.Right,
-                            Content = "Подробнее..."
-                        };
-                        gameMoreInfoButton.Click += GameMoreInfoButton_Click;
-                        gameTileGrid.Children.Add(gameMoreInfoButton);
-                        Grid.SetColumn(gameMoreInfoButton, 1);
-                        Grid.SetColumnSpan(gameMoreInfoButton, 3);
-                        Grid.SetRow(gameMoreInfoButton, 4);
+                            // Кнопка
+                            // -----------------------------------------------
+                            Button gameMoreInfoButton = new Button()
+                            {
+                                Tag = dataReader.GetInt32(0),
+                                Padding = new Thickness(3),
+                                Margin = new Thickness(5),
+                                HorizontalAlignment = HorizontalAlignment.Right,
+                                Content = "Подробнее..."
+                            };
+                            gameMoreInfoButton.Click += GameMoreInfoButton_Click;
+                            gameTileGrid.Children.Add(gameMoreInfoButton);
+                            Grid.SetColumn(gameMoreInfoButton, 1);
+                            Grid.SetColumnSpan(gameMoreInfoButton, 3);
+                            Grid.SetRow(gameMoreInfoButton, 4);
+                        }
                     }
                 }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     
@@ -568,10 +575,7 @@ namespace GameDatabase_App
         // Открытие окна игры
         private void GameMoreInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag)
-            {
-
-            };
+            GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag);
             gameWindow.Show();
         }
     }

@@ -37,15 +37,17 @@ namespace GameDatabase_App
                 InitialCatalog = "GameDatabase",
                 IntegratedSecurity = true
             };
-            // Подключение
-            using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString })
+            try
             {
-                // Открытие подключения
-                connection.Open();
+                // Подключение
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString })
+                {
+                    // Открытие подключения
+                    connection.Open();
 
-                // Получение рецензий на игру
-                using (SqlCommand command = new SqlCommand(
-                    @"  SELECT 
+                    // Получение рецензий на игру
+                    using (SqlCommand command = new SqlCommand(
+                        @"  SELECT 
                             dbo.Reviewers.title, 
                             dbo.Reviews.summary, 
                             dbo.Reviews.score, 
@@ -56,98 +58,98 @@ namespace GameDatabase_App
                                 ON dbo.Reviews.reviewer_id = dbo.Reviewers.id 
                         WHERE 
                             game_id = @game_id", connection))
-                {
-                    command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                    // Выполнение запроса   
-                    using (SqlDataReader dataReader = command.ExecuteReader())
                     {
-                        //Проверка наличия строк
-                        if (dataReader.HasRows)
+                        command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            while (dataReader.Read())
+                            //Проверка наличия строк
+                            if (dataReader.HasRows)
                             {
-                                Grid reviewTileGrid = new Grid()
+                                while (dataReader.Read())
                                 {
-                                    //ShowGridLines = true
-                                };
-                                ReviewsList.Children.Add(reviewTileGrid);
-                                ReviewsList.Children.Add(new Separator());
-                                reviewTileGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                                reviewTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                                reviewTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                                reviewTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                                reviewTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-
-                                // Название рецензента
-                                // ---------------------------------------
-                                Label reviewerLabel = new Label()
-                                {
-                                    Content = dataReader.GetString(0),
-                                    FontSize = 18
-                                };
-                                reviewTileGrid.Children.Add(reviewerLabel);
-                                // ---------------------------------------
-
-                                // Краткое содержание рецензии
-                                // ---------------------------------------
-                                TextBlock reviewSummaryTextBox = new TextBlock()
-                                {
-                                    Text = dataReader.GetString(1),
-                                    TextWrapping = TextWrapping.Wrap,
-                                    Margin = new Thickness(3)
-                                };
-                                Grid.SetRow(reviewSummaryTextBox, 1);
-                                reviewTileGrid.Children.Add(reviewSummaryTextBox);
-                                // ---------------------------------------
-
-                                // Оценка
-                                // ---------------------------------------
-                                Border reviewScoreBorder = new Border()
-                                {
-                                    Background = dataReader.IsDBNull(2) || dataReader.GetByte(2) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetByte(2) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen)),
-                                    Margin = new Thickness(5),
-                                    BorderThickness = new Thickness(1),
-                                    BorderBrush = new SolidColorBrush(Colors.Black),
-                                    Height = 50,
-                                    Width = 50,
-                                    VerticalAlignment = VerticalAlignment.Top
-                                };
-                                reviewScoreBorder.Child = new Label()
-                                {
-                                    FontSize = 24,
-                                    HorizontalAlignment = HorizontalAlignment.Center,
-                                    VerticalAlignment = VerticalAlignment.Center,
-                                    Content = dataReader.IsDBNull(2) ? "-" : dataReader.GetByte(2).ToString()
-                                };
-                                Grid.SetColumn(reviewScoreBorder, 1);
-                                Grid.SetRowSpan(reviewScoreBorder, 2);
-                                reviewTileGrid.Children.Add(reviewScoreBorder);
-                                // ---------------------------------------
-
-                                // Ссылка на рецензию
-                                // ---------------------------------------
-                                Label moreInfoLabel = new Label
-                                {
-                                    Content = new Hyperlink()
+                                    Grid reviewTileGrid = new Grid()
                                     {
-                                        NavigateUri = new Uri(dataReader.GetString(3), UriKind.Relative)
-                                    }
-                                };
-                                ((Hyperlink)(moreInfoLabel.Content)).Inlines.Add("Читать полностью");
-                                ((Hyperlink)(moreInfoLabel.Content)).RequestNavigate += Hyperlink_RequestNavigate;
-                                reviewTileGrid.Children.Add(moreInfoLabel);
-                                Grid.SetColumnSpan(moreInfoLabel, 2);
-                                Grid.SetRow(moreInfoLabel, 2);
-                                // ---------------------------------------
+                                        //ShowGridLines = true
+                                    };
+                                    ReviewsList.Children.Add(reviewTileGrid);
+                                    ReviewsList.Children.Add(new Separator());
+                                    reviewTileGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                                    reviewTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                                    reviewTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                                    reviewTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                                    reviewTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
 
+                                    // Название рецензента
+                                    // ---------------------------------------
+                                    Label reviewerLabel = new Label()
+                                    {
+                                        Content = dataReader.GetString(0),
+                                        FontSize = 18
+                                    };
+                                    reviewTileGrid.Children.Add(reviewerLabel);
+                                    // ---------------------------------------
+
+                                    // Краткое содержание рецензии
+                                    // ---------------------------------------
+                                    TextBlock reviewSummaryTextBox = new TextBlock()
+                                    {
+                                        Text = dataReader.GetString(1),
+                                        TextWrapping = TextWrapping.Wrap,
+                                        Margin = new Thickness(3)
+                                    };
+                                    Grid.SetRow(reviewSummaryTextBox, 1);
+                                    reviewTileGrid.Children.Add(reviewSummaryTextBox);
+                                    // ---------------------------------------
+
+                                    // Оценка
+                                    // ---------------------------------------
+                                    Border reviewScoreBorder = new Border()
+                                    {
+                                        Background = dataReader.IsDBNull(2) || dataReader.GetByte(2) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetByte(2) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen)),
+                                        Margin = new Thickness(5),
+                                        BorderThickness = new Thickness(1),
+                                        BorderBrush = new SolidColorBrush(Colors.Black),
+                                        Height = 50,
+                                        Width = 50,
+                                        VerticalAlignment = VerticalAlignment.Top
+                                    };
+                                    reviewScoreBorder.Child = new Label()
+                                    {
+                                        FontSize = 24,
+                                        HorizontalAlignment = HorizontalAlignment.Center,
+                                        VerticalAlignment = VerticalAlignment.Center,
+                                        Content = dataReader.IsDBNull(2) ? "-" : dataReader.GetByte(2).ToString()
+                                    };
+                                    Grid.SetColumn(reviewScoreBorder, 1);
+                                    Grid.SetRowSpan(reviewScoreBorder, 2);
+                                    reviewTileGrid.Children.Add(reviewScoreBorder);
+                                    // ---------------------------------------
+
+                                    // Ссылка на рецензию
+                                    // ---------------------------------------
+                                    Label moreInfoLabel = new Label
+                                    {
+                                        Content = new Hyperlink()
+                                        {
+                                            NavigateUri = new Uri(dataReader.GetString(3), UriKind.Relative)
+                                        }
+                                    };
+                                    ((Hyperlink)(moreInfoLabel.Content)).Inlines.Add("Читать полностью");
+                                    ((Hyperlink)(moreInfoLabel.Content)).RequestNavigate += Hyperlink_RequestNavigate;
+                                    reviewTileGrid.Children.Add(moreInfoLabel);
+                                    Grid.SetColumnSpan(moreInfoLabel, 2);
+                                    Grid.SetRow(moreInfoLabel, 2);
+                                    // ---------------------------------------
+
+                                }
                             }
                         }
                     }
-                }
 
-                // Получение информации о игре
-                using (SqlCommand command = new SqlCommand(
-                    @"  SELECT
+                    // Получение информации о игре
+                    using (SqlCommand command = new SqlCommand(
+                        @"  SELECT
 	                        dbo.Games.title,
                             dbo.Games.website,
                             dbo.Games.summary,
@@ -167,34 +169,34 @@ namespace GameDatabase_App
 	                        ) AS GameScore
 		                        ON  dbo.Games.id = GameScore.game_id
                         WHERE dbo.Games.id = @game_id", connection))
-                {
-                    command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                    // Выполнение запроса   
-                    using (SqlDataReader dataReader = command.ExecuteReader())
                     {
-                        //Проверка наличия строк
-                        if (dataReader.HasRows)
+                        command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            while (dataReader.Read())
+                            //Проверка наличия строк
+                            if (dataReader.HasRows)
                             {
-                                Title = dataReader.GetString(0);
-                                GameTitle.Content = dataReader.GetString(0);
-                                GameReleaseDate.Content = "Дата выхода: " + 
-                                    $"{ (dataReader.IsDBNull(3) ? "TBA" : DateTime.Parse(dataReader.GetDateTime(3).ToString()).ToShortDateString())}";
-                                GameAvgScore.Content = dataReader.IsDBNull(4) ? "-" : dataReader.GetInt32(4).ToString();
-                                GameAvgScoreBorder.Background = dataReader.IsDBNull(4) || dataReader.GetInt32(4) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetInt32(4) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen));
-                                GameSummary.Text = dataReader.GetString(2);
-                                GameOfficial.NavigateUri = new Uri(dataReader.GetString(1), UriKind.Relative);
-                                GameOfficial.Inlines.Add(dataReader.GetString(1));
-                                GameOfficial.RequestNavigate += Hyperlink_RequestNavigate;
+                                while (dataReader.Read())
+                                {
+                                    Title = dataReader.GetString(0);
+                                    GameTitle.Content = dataReader.GetString(0);
+                                    GameReleaseDate.Content = "Дата выхода: " +
+                                        $"{ (dataReader.IsDBNull(3) ? "TBA" : DateTime.Parse(dataReader.GetDateTime(3).ToString()).ToShortDateString())}";
+                                    GameAvgScore.Content = dataReader.IsDBNull(4) ? "-" : dataReader.GetInt32(4).ToString();
+                                    GameAvgScoreBorder.Background = dataReader.IsDBNull(4) || dataReader.GetInt32(4) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetInt32(4) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen));
+                                    GameSummary.Text = dataReader.GetString(2);
+                                    GameOfficial.NavigateUri = new Uri(dataReader.GetString(1), UriKind.Relative);
+                                    GameOfficial.Inlines.Add(dataReader.GetString(1));
+                                    GameOfficial.RequestNavigate += Hyperlink_RequestNavigate;
+                                }
                             }
                         }
                     }
-                }
 
-                // Разработчики игры
-                using (SqlCommand command = new SqlCommand(
-                    @"  SELECT
+                    // Разработчики игры
+                    using (SqlCommand command = new SqlCommand(
+                        @"  SELECT
 	                        dbo.Developers.title
                         FROM
 	                        dbo.Games_Developers
@@ -202,30 +204,30 @@ namespace GameDatabase_App
                                 dbo.Developers
                                     ON dbo.Games_Developers.developer_id = dbo.Developers.id
                         WHERE dbo.Games_Developers.game_id = @game_id", connection))
-                {
-                    command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                    // Выполнение запроса   
-                    using (SqlDataReader dataReader = command.ExecuteReader())
                     {
-                        //Проверка наличия строк
-                        if (dataReader.HasRows)
+                        command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            int count = 0;
-                            while (dataReader.Read())
+                            //Проверка наличия строк
+                            if (dataReader.HasRows)
                             {
-                                if (count == 0)
-                                    GameDevelopers.Text = dataReader.GetString(0);
-                                else
-                                    GameDevelopers.Text += ", " + dataReader.GetString(0);
-                                count++;
+                                int count = 0;
+                                while (dataReader.Read())
+                                {
+                                    if (count == 0)
+                                        GameDevelopers.Text = dataReader.GetString(0);
+                                    else
+                                        GameDevelopers.Text += ", " + dataReader.GetString(0);
+                                    count++;
+                                }
                             }
                         }
                     }
-                }
 
-                // Издатели игры
-                using (SqlCommand command = new SqlCommand(
-                    @"  SELECT
+                    // Издатели игры
+                    using (SqlCommand command = new SqlCommand(
+                        @"  SELECT
 	                        dbo.Publishers.title
                         FROM
 	                        dbo.Games_Publishers
@@ -233,30 +235,30 @@ namespace GameDatabase_App
                                 dbo.Publishers
                                     ON dbo.Games_Publishers.publisher_id = dbo.Publishers.id
                         WHERE dbo.Games_Publishers.game_id = @game_id", connection))
-                {
-                    command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                    // Выполнение запроса   
-                    using (SqlDataReader dataReader = command.ExecuteReader())
                     {
-                        //Проверка наличия строк
-                        if (dataReader.HasRows)
+                        command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            int count = 0;
-                            while (dataReader.Read())
+                            //Проверка наличия строк
+                            if (dataReader.HasRows)
                             {
-                                if (count == 0)
-                                    GamePublishers.Text = dataReader.GetString(0);
-                                else
-                                    GamePublishers.Text += ", " + dataReader.GetString(0);
-                                count++;
+                                int count = 0;
+                                while (dataReader.Read())
+                                {
+                                    if (count == 0)
+                                        GamePublishers.Text = dataReader.GetString(0);
+                                    else
+                                        GamePublishers.Text += ", " + dataReader.GetString(0);
+                                    count++;
+                                }
                             }
                         }
                     }
-                }
 
-                // Жанры игры
-                using (SqlCommand command = new SqlCommand(
-                    @"  SELECT
+                    // Жанры игры
+                    using (SqlCommand command = new SqlCommand(
+                        @"  SELECT
 	                        dbo.Genres.title
                         FROM
 	                        dbo.Games_Genres
@@ -264,30 +266,30 @@ namespace GameDatabase_App
                                 dbo.Genres
                                     ON dbo.Games_Genres.genre_id = dbo.Genres.id
                         WHERE dbo.Games_Genres.game_id = @game_id", connection))
-                {
-                    command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                    // Выполнение запроса   
-                    using (SqlDataReader dataReader = command.ExecuteReader())
                     {
-                        //Проверка наличия строк
-                        if (dataReader.HasRows)
+                        command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            int count = 0;
-                            while (dataReader.Read())
+                            //Проверка наличия строк
+                            if (dataReader.HasRows)
                             {
-                                if (count == 0)
-                                    GameGenres.Text = dataReader.GetString(0);
-                                else
-                                    GameGenres.Text += ", " + dataReader.GetString(0);
-                                count++;
+                                int count = 0;
+                                while (dataReader.Read())
+                                {
+                                    if (count == 0)
+                                        GameGenres.Text = dataReader.GetString(0);
+                                    else
+                                        GameGenres.Text += ", " + dataReader.GetString(0);
+                                    count++;
+                                }
                             }
                         }
                     }
-                }
 
-                // Платформы игры
-                using (SqlCommand command = new SqlCommand(
-                    @"  SELECT
+                    // Платформы игры
+                    using (SqlCommand command = new SqlCommand(
+                        @"  SELECT
 	                        dbo.Platforms.title
                         FROM
 	                        dbo.Games_Platforms
@@ -295,26 +297,31 @@ namespace GameDatabase_App
                                 dbo.Platforms
                                     ON dbo.Games_Platforms.platform_id = dbo.Platforms.id
                         WHERE dbo.Games_Platforms.game_id = @game_id", connection))
-                {
-                    command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                    // Выполнение запроса   
-                    using (SqlDataReader dataReader = command.ExecuteReader())
                     {
-                        //Проверка наличия строк
-                        if (dataReader.HasRows)
+                        command.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            int count = 0;
-                            while (dataReader.Read())
+                            //Проверка наличия строк
+                            if (dataReader.HasRows)
                             {
-                                if (count == 0)
-                                    GamePlatforms.Text = dataReader.GetString(0);
-                                else
-                                    GamePlatforms.Text += ", " + dataReader.GetString(0);
-                                count++;
+                                int count = 0;
+                                while (dataReader.Read())
+                                {
+                                    if (count == 0)
+                                        GamePlatforms.Text = dataReader.GetString(0);
+                                    else
+                                        GamePlatforms.Text += ", " + dataReader.GetString(0);
+                                    count++;
+                                }
                             }
                         }
                     }
                 }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
