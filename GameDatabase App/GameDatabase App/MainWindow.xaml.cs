@@ -181,9 +181,12 @@ namespace GameDatabase_App
             }
         }
     
+        // Формирование поискового запроса для SQL Server
         private SqlCommand GenerateSqlCommand(SqlConnection connection)
         {
+            // Количество условий поиска
             int terms = 0;
+            // Основной текст запроса, в случае отсутствие условий поиска выполняется только он
             SqlCommand command = new SqlCommand()
             {
                 CommandText =
@@ -208,8 +211,133 @@ namespace GameDatabase_App
 		                    ON  dbo.Games.id = GameScore.game_id",
                 Connection = connection
             };
+            // Количество выделенных объектов
+            int count = 0;
+            // Поиск по разработчикам
+            foreach (CheckBox developer in SearchDevelopersList.Children)
+            {
+                if ((bool)developer.IsChecked)
+                {
+                    command.Parameters.Add(new SqlParameter($"@developer{developer.Tag}", developer.Tag));
+                    if (count == 0)
+                        command.CommandText +=
+                            $@"  INNER JOIN 
+	                            (
+		                            SELECT 
+                                        dbo.Games_Developers.game_id
+		                            FROM 
+                                        dbo.Games_Developers 
+                                    WHERE 
+                                        dbo.Games_Developers.developer_id IN (@developer{developer.Tag}";
+                    else
+                        command.CommandText += $@", @developer{developer.Tag}";
+                    count++;
+                }
+            }
+            if (count != 0)
+            {
+                command.CommandText +=
+                    @")
+		            GROUP BY dbo.Games_Developers.game_id
+	            ) AS GameDevelopers
+		            ON dbo.Games.id = GameDevelopers.game_id";
+            }
 
-            if(GameTitleSearchTextBlock.Text.Length > 0)
+            count = 0;
+            // Поиск по издателям
+            foreach (CheckBox publisher in SearchPublishersList.Children)
+            {
+                if ((bool)publisher.IsChecked)
+                {
+                    command.Parameters.Add(new SqlParameter($"@publisher{publisher.Tag}", publisher.Tag));
+                    if (count == 0)
+                        command.CommandText +=
+                            $@"  INNER JOIN 
+	                            (
+		                            SELECT 
+                                        dbo.Games_Publishers.game_id
+		                            FROM 
+                                        dbo.Games_Publishers 
+                                    WHERE 
+                                        dbo.Games_Publishers.publisher_id IN (@publisher{publisher.Tag}";
+                    else
+                        command.CommandText += $@", @publisher{publisher.Tag}";
+                    count++;
+                }
+            }
+            if (count != 0)
+            {
+                command.CommandText +=
+                    @")
+		            GROUP BY dbo.Games_Publishers.game_id
+	            ) AS GamePublishers
+		            ON dbo.Games.id = GamePublishers.game_id";
+            }
+
+            count = 0;
+            // Поиск по жанрам
+            foreach (CheckBox genre in SearchGenresList.Children)
+            {
+                if ((bool)genre.IsChecked)
+                {
+                    command.Parameters.Add(new SqlParameter($"@genre{genre.Tag}", genre.Tag));
+                    if (count == 0)
+                        command.CommandText +=
+                            $@"  INNER JOIN 
+	                            (
+		                            SELECT 
+                                        dbo.Games_Genres.game_id
+		                            FROM 
+                                        dbo.Games_Genres 
+                                    WHERE 
+                                        dbo.Games_Genres.genre_id IN (@genre{genre.Tag}";
+                    else
+                        command.CommandText += $@", @genre{genre.Tag}";
+                    count++;
+                }
+            }
+            if (count != 0)
+            {
+                command.CommandText +=
+                    @")
+		            GROUP BY dbo.Games_Genres.game_id
+	            ) AS GameGenres
+		            ON dbo.Games.id = GameGenres.game_id";
+            }
+
+            count = 0;
+            // Поиск по платформам
+            foreach (CheckBox platform in SearchPlatformsList.Children)
+            {
+                if ((bool)platform.IsChecked)
+                {
+                    command.Parameters.Add(new SqlParameter($"@platform{platform.Tag}", platform.Tag));
+                    if (count == 0)
+                        command.CommandText +=
+                            $@"  INNER JOIN 
+	                            (
+		                            SELECT 
+                                        dbo.Games_Platforms.game_id
+		                            FROM 
+                                        dbo.Games_Platforms 
+                                    WHERE 
+                                        dbo.Games_Platforms.platform_id IN (@platform{platform.Tag}";
+                    else
+                        command.CommandText += $@", @platform{platform.Tag}";
+                    count++;
+                }
+            }
+            if (count != 0)
+            {
+                command.CommandText +=
+                    @")
+		            GROUP BY dbo.Games_Platforms.game_id
+	            ) AS GamePlatforms
+		            ON dbo.Games.id = GamePlatforms.game_id";
+            }
+
+            // Поиск по названию игры
+            if (GameTitleSearchTextBlock.Text.Length > 0)
             {
                 command.Parameters.Add(new SqlParameter("@title", '%' + GameTitleSearchTextBlock.Text + '%'));
                 command.CommandText += 
@@ -217,6 +345,7 @@ namespace GameDatabase_App
                 terms++;
             }
 
+            // Поиск по дате выхода (с)
             if(GameReleaseFromDatePicker.SelectedDate != null)
             {
                 if (terms == 0)
@@ -228,6 +357,7 @@ namespace GameDatabase_App
                 terms++;
             }
 
+            // Поиск по дате выхода (до)
             if (GameReleaseToDatePicker.SelectedDate != null)
             {
                 if (terms == 0)
@@ -239,6 +369,7 @@ namespace GameDatabase_App
                 terms++;
             }
 
+            // Поиск по средней оценке (>)
             if (GameScoreFromSlider.Value > 0)
             {
                 if (terms == 0)
@@ -250,6 +381,7 @@ namespace GameDatabase_App
                 terms++;
             }
 
+            // Поиск по средней оценке (<)
             if (GameScoreToSlider.Value < 100)
             {
                 if (terms == 0)
@@ -261,70 +393,16 @@ namespace GameDatabase_App
                 terms++;
             }
 
-            foreach(CheckBox developer in SearchDevelopersList.Children)
-            {
-                if ((bool)developer.IsChecked)
-                {
-                    if (terms == 0)
-                        command.CommandText += @" WHERE";
-                    else
-                        command.CommandText += @" AND";
-                    command.Parameters.Add(new SqlParameter($"@developer{developer.Tag}", developer.Tag));
-                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Developers WHERE developer_id = @developer{developer.Tag})";
-                    terms++;
-                }
-            }
-
-            foreach (CheckBox publisher in SearchPublishersList.Children)
-            {
-                if ((bool)publisher.IsChecked)
-                {
-                    if (terms == 0)
-                        command.CommandText += @" WHERE";
-                    else
-                        command.CommandText += @" AND";
-                    command.Parameters.Add(new SqlParameter($"@publisher{publisher.Tag}", publisher.Tag));
-                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Publishers WHERE publisher_id = @publisher{publisher.Tag})";
-                    terms++;
-                }
-            }
-
-            foreach (CheckBox genre in SearchGenresList.Children)
-            {
-                if ((bool)genre.IsChecked)
-                {
-                    if (terms == 0)
-                        command.CommandText += @" WHERE";
-                    else
-                        command.CommandText += @" AND";
-                    command.Parameters.Add(new SqlParameter($"@genre{genre.Tag}", genre.Tag));
-                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Genres WHERE genre_id = @genre{genre.Tag})";
-                    terms++;
-                }
-            }
-
-            foreach (CheckBox platform in SearchPlatformsList.Children)
-            {
-                if ((bool)platform.IsChecked)
-                {
-                    if (terms == 0)
-                        command.CommandText += @" WHERE";
-                    else
-                        command.CommandText += @" AND";
-                    command.Parameters.Add(new SqlParameter($"@platform{platform.Tag}", platform.Tag));
-                    command.CommandText += $@" id IN (SELECT game_id FROM dbo.Games_Platforms WHERE platform_id = @platform{platform.Tag})";
-                    terms++;
-                }
-            }
-
             return command;
         }
 
+        // Поиск
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             ShowGames();
         }
 
+        // Очистка параметров поиска
         private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
         {
             GameTitleSearchTextBlock.Clear();
@@ -350,12 +428,14 @@ namespace GameDatabase_App
             }
         }
 
+        // Значение слайдера не может быть выше значения второго слайдера
         private void GameScoreFromSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (e.NewValue > GameScoreToSlider.Value)
                 GameScoreFromSlider.Value = e.OldValue;
         }
 
+        // Значение слайдера не может быть ниже значения первого слайдера
         private void GameScoreToSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (e.NewValue < GameScoreFromSlider.Value)
