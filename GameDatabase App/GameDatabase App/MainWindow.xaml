@@ -9,6 +9,15 @@
         Title="Magnum opus">
     <DockPanel>
         <StackPanel Width="300" Margin="5">
+            <Label Content="Сортировать по:"/>
+            <ComboBox x:Name="SortByComboBox">
+                <ComboBoxItem Tag="0" Content="Название (По возростанию)" IsSelected="True"/>
+                <ComboBoxItem Tag="1" Content="Название (По убыванию)"/>
+                <ComboBoxItem Tag="2" Content="Дата (По возростанию)"/>
+                <ComboBoxItem Tag="3" Content="Дата (По убыванию)"/>
+                <ComboBoxItem Tag="4" Content="Оценка (По возростанию)"/>
+                <ComboBoxItem Tag="5" Content="Оценка (По убыванию)"/>
+            </ComboBox>
             <Label Content="Средняя оценка:"/>
             <DockPanel VerticalAlignment="Center" Margin="5">
                 <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreFromSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0"  VerticalContentAlignment="Center" />

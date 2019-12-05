@@ -393,6 +393,27 @@ namespace GameDatabase_App
                 terms++;
             }
 
+            switch (((ComboBoxItem)SortByComboBox.SelectedItem).Tag)
+            {
+                case "0":
+                    command.CommandText += " ORDER BY dbo.Games.title ASC";
+                    break;
+                case "1":
+                    command.CommandText += " ORDER BY dbo.Games.title DESC";
+                    break;
+                case "2":
+                    command.CommandText += " ORDER BY dbo.Games.release_date ASC";
+                    break;
+                case "3":
+                    command.CommandText += " ORDER BY dbo.Games.release_date DESC";
+                    break;
+                case "4":
+                    command.CommandText += " ORDER BY GameScore.avg_score ASC";
+                    break;
+                case "5":
+                    command.CommandText += " ORDER BY GameScore.avg_score DESC";
+                    break;
+            }
             return command;
         }
 
