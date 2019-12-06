@@ -13,10 +13,19 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ScrollViewer>
+        <Menu Grid.Row="0" Grid.ColumnSpan="100">
+            <MenuItem Header="Редактирование">
+                <MenuItem Header="Добавить...">
+                    <MenuItem Header="Игра..." Click="AddGame_Click"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto">
             <StackPanel Width="300" Margin="5">
                 <Label Content="Сортировать по:"/>
                 <ComboBox x:Name="SortByComboBox">
@@ -70,11 +79,13 @@
                 <StackPanel x:Name="SearchPlatformsList"/>
             </StackPanel>
         </ScrollViewer>
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="2">
             <Button x:Name="SearchButton" Click="SearchButton_Click" Content="Поиск" IsDefault="True"/>
             <Button x:Name="ClearSearchButton" Click="ClearSearchButton_Click" Content="Очистить"/>
         </StackPanel>
-        <ScrollViewer Grid.Column="1" Grid.RowSpan="2">
+        <ScrollViewer Grid.Column="1" 
+                      Grid.Row="1" 
+                      Grid.RowSpan="2">
             <StackPanel x:Name="GamesList" MaxWidth="1000"/>
         </ScrollViewer>
     </Grid>
