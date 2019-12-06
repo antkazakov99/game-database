@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Configuration;
 
 namespace GameDatabase_App
 {
@@ -30,17 +31,10 @@ namespace GameDatabase_App
 
         private void ShowGame()
         {
-            // Формирование строки подключения
-            SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder()
-            {
-                DataSource = "DESKTOP-HOME",
-                InitialCatalog = "GameDatabase",
-                IntegratedSecurity = true
-            };
             try
             {
                 // Подключение
-                using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString })
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString })
                 {
                     // Открытие подключения
                     connection.Open();

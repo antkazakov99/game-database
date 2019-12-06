@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data.SqlClient;
+using System.Configuration;
 
 namespace GameDatabase_App
 {
@@ -33,17 +34,10 @@ namespace GameDatabase_App
         {
             // Очистка списка
             GamesList.Children.Clear();
-            // Формирование строки подключения
-            SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder() 
-            { 
-                DataSource = "DESKTOP-HOME", 
-                InitialCatalog = "GameDatabase", 
-                IntegratedSecurity = true 
-            };
             try
             {
                 // Подключение
-                using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString })
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString })
                 {
                     // Открытие подключения
                     connection.Open();
@@ -164,21 +158,56 @@ namespace GameDatabase_App
                             gameTileGrid.Children.Add(gameSummaryTextBlock);
                             // -----------------------------------------------
 
-                            // Кнопка
+                            // -----------------------------------------------
+                            StackPanel buttons = new StackPanel()
+                            {
+                                Orientation = Orientation.Horizontal,
+                                HorizontalAlignment = HorizontalAlignment.Right,
+                                Margin = new Thickness(5),
+                            };
+                            Grid.SetColumn(buttons, 1);
+                            Grid.SetColumnSpan(buttons, 3);
+                            Grid.SetRow(buttons, 4);
+                            gameTileGrid.Children.Add(buttons);
+                            // -----------------------------------------------
+
+                            // Кнопка редактировать
+                            // -----------------------------------------------
+                            Button DeleteButton = new Button()
+                            {
+                                Tag = dataReader.GetInt32(0),
+                                Padding = new Thickness(3),
+                                HorizontalAlignment = HorizontalAlignment.Right,
+                                Content = "Удалить"
+                            };
+                            DeleteButton.Click += DeleteGame_Click;
+                            buttons.Children.Add(DeleteButton);
+                            // -----------------------------------------------
+
+                            // Кнопка редактировать
+                            // -----------------------------------------------
+                            Button EditButton = new Button()
+                            {
+                                Tag = dataReader.GetInt32(0),
+                                Padding = new Thickness(3),
+                                HorizontalAlignment = HorizontalAlignment.Right,
+                                Content = "Редактировать"
+                            };
+                            EditButton.Click += GameEditButton_Click;
+                            buttons.Children.Add(EditButton);
+                            // -----------------------------------------------
+
+                            // Кнопка подробнее
                             // -----------------------------------------------
                             Button gameMoreInfoButton = new Button()
                             {
                                 Tag = dataReader.GetInt32(0),
                                 Padding = new Thickness(3),
-                                Margin = new Thickness(5),
-                                HorizontalAlignment = HorizontalAlignment.Right,
                                 Content = "Подробнее..."
                             };
                             gameMoreInfoButton.Click += GameMoreInfoButton_Click;
-                            gameTileGrid.Children.Add(gameMoreInfoButton);
-                            Grid.SetColumn(gameMoreInfoButton, 1);
-                            Grid.SetColumnSpan(gameMoreInfoButton, 3);
-                            Grid.SetRow(gameMoreInfoButton, 4);
+                            buttons.Children.Add(gameMoreInfoButton);
+                            // -----------------------------------------------
                         }
                     }
                 }
@@ -477,17 +506,10 @@ namespace GameDatabase_App
         {
             // Очистка списка
             SearchDevelopersList.Children.Clear();
-            // Формирование строки подключения
-            SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder()
-            {
-                DataSource = "DESKTOP-HOME",
-                InitialCatalog = "GameDatabase",
-                IntegratedSecurity = true
-            };
             try
             {
                 // Подключение
-                using (SqlConnection connection = new SqlConnection() { ConnectionString = connectionStringBuilder.ConnectionString })
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString })
                 {
                     // Открытие подключения
                     connection.Open();
@@ -577,6 +599,49 @@ namespace GameDatabase_App
         {
             GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag);
             gameWindow.Show();
+        }
+
+        // Открытие окна редактирования игры
+        private void GameEditButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditGameWindow window = new EditGameWindow((int)((Button)sender).Tag);
+            window.ShowDialog();
+            ShowGames();
+        }
+
+        // Открытие окна добавления игры
+        private void AddGame_Click(object sender, RoutedEventArgs e)
+        {
+            EditGameWindow window = new EditGameWindow();
+            window.ShowDialog();
+            ShowGames();
+        }
+
+        // Удаление игры
+        private void DeleteGame_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show($"Вы действительно хотите удалить {((Label)(((Grid)(((StackPanel)(((Button)sender).Parent)).Parent)).Children[1])).Content}?", "Удаление игры", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                    {
+                        connection.Open();
+
+                        using (SqlCommand command = new SqlCommand($@"DELETE FROM dbo.Games WHERE dbo.Games.id = @id", connection))
+                        {
+                            command.Parameters.Add(new SqlParameter("@id", ((Button)sender).Tag));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            ShowGames();
         }
     }
 }
