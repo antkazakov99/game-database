@@ -21,17 +21,13 @@ namespace GameDatabase_App
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(bool isAdmin = false)
         {
-            // Вход в приложение через логин
-            LoginWindow loginWindow = new LoginWindow();
-            if (!(bool)loginWindow.ShowDialog())
-                this.Close();
             InitializeComponent();
-            Tag = loginWindow.Tag;
-            if((bool)Tag)
+            if(isAdmin)
             {
                 SettingsMenu.Visibility = Visibility.Visible;
+                Tag = isAdmin;
             }
             ShowGames();
             UpdateSearchParameters();
