@@ -45,7 +45,7 @@ namespace GameDatabase_App
                             int value = (int)command.ExecuteScalar();
                             if (value > 20000)
                             {
-                                Tag = "Adm";
+                                Tag = true;
                             }
                         }
                         DialogResult = true;
@@ -65,7 +65,7 @@ namespace GameDatabase_App
                 IntegratedSecurity = true
             };
             Properties.Settings.Default.userConnection = sqlConnectionString.ConnectionString;
-            Tag = "Adm";
+            Tag = true;
             DialogResult = true;
         }
     }

@@ -21,11 +21,15 @@ namespace GameDatabase_App
     /// </summary>
     public partial class GameWindow : Window
     {
-        public GameWindow(int game_id)
+        public GameWindow(int game_id, bool adm = false)
         {
             InitializeComponent();
             Tag = game_id;
             ShowGame();
+            if(adm)
+            {
+                GameEditButton.Visibility = Visibility.Visible;
+            }
         }
 
         private void ShowGame()
@@ -39,6 +43,7 @@ namespace GameDatabase_App
                     connection.Open();
 
                     // Получение рецензий на игру
+                    ReviewsList.Children.Clear();
                     using (SqlCommand command = new SqlCommand(
                         @"  SELECT 
                             dbo.Reviewers.title, 
@@ -180,8 +185,8 @@ namespace GameDatabase_App
                                     GameAvgScoreBorder.Background = dataReader.IsDBNull(4) || dataReader.GetInt32(4) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetInt32(4) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen));
                                     GameSummary.Text = dataReader.GetString(2);
                                     GameOfficial.NavigateUri = new Uri(dataReader.GetString(1), UriKind.Relative);
+                                    GameOfficial.Inlines.Clear();
                                     GameOfficial.Inlines.Add(dataReader.GetString(1));
-                                    GameOfficial.RequestNavigate += Hyperlink_RequestNavigate;
                                 }
                             }
                         }
@@ -328,6 +333,14 @@ namespace GameDatabase_App
             {
                 MessageBox.Show($"В процессе загрузки сайта произошла ошибка:{ex}", "Ошибка загрузки", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // Открытие окна редактирования игры
+        private void GameEditButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditGameWindow window = new EditGameWindow((int)Tag);
+            window.ShowDialog();
+            ShowGame();
         }
     }
 }
