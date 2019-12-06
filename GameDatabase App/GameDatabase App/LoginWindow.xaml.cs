@@ -65,6 +65,7 @@ namespace GameDatabase_App
                 IntegratedSecurity = true
             };
             Properties.Settings.Default.userConnection = sqlConnectionString.ConnectionString;
+            Tag = "Adm";
             DialogResult = true;
         }
     }
