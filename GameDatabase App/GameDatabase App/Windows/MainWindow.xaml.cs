@@ -29,7 +29,7 @@ namespace GameDatabase_App
                 this.Close();
             InitializeComponent();
             Tag = loginWindow.Tag;
-            if((string)Tag == "Adm")
+            if((bool)Tag)
             {
                 SettingsMenu.Visibility = Visibility.Visible;
             }
@@ -179,7 +179,7 @@ namespace GameDatabase_App
                             gameTileGrid.Children.Add(buttons);
                             // -----------------------------------------------
 
-                            if ((string)Tag == "Adm")
+                            if ((bool)Tag)
                             {
                                 // Кнопка удалить
                                 // -----------------------------------------------
@@ -608,7 +608,7 @@ namespace GameDatabase_App
         // Открытие окна игры
         private void GameMoreInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag);
+            GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag, (bool)Tag ? true : false);
             gameWindow.Show();
         }
 

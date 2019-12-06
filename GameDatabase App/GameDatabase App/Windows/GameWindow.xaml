@@ -22,21 +22,26 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Border Grid.RowSpan="3" 
+            <StackPanel Grid.RowSpan="3" >
+                <Border
                     Width="120" Height="180"
                     BorderThickness="1"
                     BorderBrush="Black"
-                    VerticalAlignment="Top"
                     Margin="10 5">
-                <Image />
-            </Border>
+                    <Image />
+                </Border>
+                <Button x:Name="GameEditButton"
+                        Visibility="Collapsed" 
+                        Content="Редактировать"
+                        Click="GameEditButton_Click"/>
+            </StackPanel>
             <Label x:Name="GameTitle"
                    Grid.Column="1"
                    FontSize="36"
                    Content="Название"/>
             <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
                 <Label FontSize = "10">
-                    <Hyperlink x:Name="GameOfficial"/>
+                    <Hyperlink x:Name="GameOfficial" RequestNavigate="Hyperlink_RequestNavigate"/>
                 </Label>
                 <Label x:Name="GameReleaseDate" 
                    FontSize="10"
