@@ -16,28 +16,48 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="10">
-                <Label Content="Название:*"/>
-                <TextBox x:Name="EditGameTitle"/>
-                <Label Content="Дата выхода:"/>
-                <DatePicker x:Name="EditGameRelease"/>
-                <Label Content="Официальный сайт:*"/>
-                <TextBox x:Name="EditGameOfficial"/>
-                <Label Content="Описание:"/>
-                <TextBox x:Name="EditGameSummary" 
+        <TabControl>
+        <TabItem Header="Общие">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <Label Content="Название:*"/>
+                        <TextBox x:Name="EditGameTitle"/>
+                        <Label Content="Дата выхода:"/>
+                        <DatePicker x:Name="EditGameRelease"/>
+                        <Label Content="Официальный сайт:*"/>
+                        <TextBox x:Name="EditGameOfficial"/>
+                        <Label Content="Описание:"/>
+                        <TextBox x:Name="EditGameSummary" 
                          TextWrapping="Wrap"
                          Height="150"/>
-                <Label Content="Разработчики:"/>
-                <StackPanel x:Name="GameEditDevelopers"/>
-                <Label Content="Издатели:"/>
-                <StackPanel x:Name="GameEditPublishers"/>
-                <Label Content="Жанры:"/>
-                <StackPanel x:Name="GameEditGenres"/>
-                <Label Content="Платформы:"/>
-                <StackPanel x:Name="GameEditPlatforms"/>
-            </StackPanel>
-        </ScrollViewer>
+                        <Label Content="Разработчики:"/>
+                        <StackPanel x:Name="GameEditDevelopers"/>
+                        <Label Content="Издатели:"/>
+                        <StackPanel x:Name="GameEditPublishers"/>
+                        <Label Content="Жанры:"/>
+                        <StackPanel x:Name="GameEditGenres"/>
+                        <Label Content="Платформы:"/>
+                        <StackPanel x:Name="GameEditPlatforms"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Рецензии">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Width="300">
+                        <Label Content="Рецензенты"/>
+                        <ListBox x:Name="Reviewers" Height="250"/>
+                        <Button Content="Добавить" Click="AddReview_Click"/>
+                    </StackPanel>
+                    <ScrollViewer Grid.Column="1">
+                        <StackPanel x:Name="ReviewsList" MaxWidth="1000"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
         <StackPanel Grid.Row="1" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Right">
