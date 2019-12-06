@@ -24,6 +24,11 @@ namespace GameDatabase_App
     {
         public MainWindow()
         {
+            // Вход в приложение через логин
+            LoginWindow loginWindow = new LoginWindow();
+            if (!(bool)loginWindow.ShowDialog())
+                this.Close();
+
             InitializeComponent();
             ShowGames();
             UpdateSearchParameters();
