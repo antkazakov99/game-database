@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GameDatabase_App"
         mc:Ignorable="d"
         Title="Magnum opus"
-        Width="370" Height="210" ResizeMode="NoResize">
+        Width="370" Height="300" ResizeMode="NoResize">
     <StackPanel Margin="10">
         <Label Content="Логин:"/>
         <TextBox  x:Name="Login"/>
@@ -22,5 +22,6 @@
                 Click="LoginButton_Click" 
                 IsDefault="True" 
                 Padding="5"/>
+        <Button Content="Войти с помощью Windows аутентификации" Padding="5" Margin="0 5" Click="Button_Click"/>
     </StackPanel>
 </Window>

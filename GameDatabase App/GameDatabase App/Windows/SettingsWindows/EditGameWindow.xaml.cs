@@ -12,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace GameDatabase_App
 {
@@ -33,7 +32,7 @@ namespace GameDatabase_App
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
                 {
                     connection.Open();
 
@@ -234,7 +233,7 @@ namespace GameDatabase_App
             {
                 try
                 {
-                    using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                    using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
                     {
                         connection.Open();
 
@@ -279,7 +278,7 @@ namespace GameDatabase_App
                                     {
                                         if (!dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Developers (game_id, developer_id) VALUES (@game_id, @dev_id)", connection1))
@@ -295,7 +294,7 @@ namespace GameDatabase_App
                                     {
                                         if (dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"DELETE FROM dbo.Games_Developers WHERE game_id = @game_id AND developer_id = @dev_id", connection1))
@@ -325,7 +324,7 @@ namespace GameDatabase_App
                                     {
                                         if (!dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Publishers (game_id, publisher_id) VALUES (@game_id, @dev_id)", connection1))
@@ -341,7 +340,7 @@ namespace GameDatabase_App
                                     {
                                         if (dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"DELETE FROM dbo.Games_Publishers WHERE game_id = @game_id AND publisher_id = @dev_id", connection1))
@@ -371,7 +370,7 @@ namespace GameDatabase_App
                                     {
                                         if (!dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Genres (game_id, genre_id) VALUES (@game_id, @dev_id)", connection1))
@@ -387,7 +386,7 @@ namespace GameDatabase_App
                                     {
                                         if (dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"DELETE FROM dbo.Games_Genres WHERE game_id = @game_id AND genre_id = @dev_id", connection1))
@@ -417,7 +416,7 @@ namespace GameDatabase_App
                                     {
                                         if (!dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Platforms (game_id, platform_id) VALUES (@game_id, @dev_id)", connection1))
@@ -433,7 +432,7 @@ namespace GameDatabase_App
                                     {
                                         if (dataReader.HasRows)
                                         {
-                                            using (SqlConnection connection1 = new SqlConnection(ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString))
+                                            using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
                                                 using (SqlCommand insertCommand = new SqlCommand(@"DELETE FROM dbo.Games_Platforms WHERE game_id = @game_id AND platform_id = @dev_id", connection1))

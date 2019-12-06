@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Configuration;
 
 namespace GameDatabase_App
 {
@@ -34,7 +33,7 @@ namespace GameDatabase_App
             try
             {
                 // Подключение
-                using (SqlConnection connection = new SqlConnection() { ConnectionString = ConfigurationManager.ConnectionStrings["defaultConnection"].ConnectionString })
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = Properties.Settings.Default.userConnection })
                 {
                     // Открытие подключения
                     connection.Open();

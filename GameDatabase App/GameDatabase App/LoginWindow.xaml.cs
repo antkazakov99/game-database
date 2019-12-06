@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Data.SqlClient;
 
 namespace GameDatabase_App
 {
@@ -30,6 +31,12 @@ namespace GameDatabase_App
                 DialogResult = true;
             else
                 InvalidLogOrPassHint.Visibility = Visibility.Visible;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.userConnection += "Integrated Security = True;";
+            DialogResult = true;
         }
     }
 }
