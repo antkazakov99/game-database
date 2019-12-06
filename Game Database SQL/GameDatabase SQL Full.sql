@@ -20,35 +20,19 @@ GO
 
 USE GameDatabase;
 
--- Таблица "Издатели"
-CREATE TABLE GameDatabase.dbo.Publishers
-(
-	-- Столбцы
-	id		INTEGER			NOT NULL	IDENTITY,
-	title	NVARCHAR(255)	NOT NULL
-
-	-- Ограничения
-	CONSTRAINT PK_Publishers
-		PRIMARY KEY CLUSTERED (id ASC)
-);
-
 -- Таблица "Игры"
 CREATE TABLE GameDatabase.dbo.Games
 (
 	-- Столбцы
 	id				INTEGER			NOT NULL	IDENTITY,
 	title			NVARCHAR(255)	NOT NULL,
-	publisher_id	INTEGER			NULL,
+	summary			NVARCHAR(MAX)	NOT NULL,
+	website			NVARCHAR(255)	NOT NULL,
 	release_date	DATE			NULL
 
 	-- Ограничения
 	CONSTRAINT PK_Games
-		PRIMARY KEY CLUSTERED (id ASC),
-	CONSTRAINT FK_Games_Publishers
-		FOREIGN KEY (publisher_id)
-			REFERENCES dbo.Publishers (id)
-			ON DELETE SET NULL
-			ON UPDATE CASCADE
+		PRIMARY KEY CLUSTERED (id ASC)
 );
 
 -- Таблица "Разработчики"
@@ -72,10 +56,49 @@ CREATE TABLE GameDatabase.dbo.Games_Developers
 
 	-- Ограничения
 	CONSTRAINT PK_GamesDevelopers
-		PRIMARY KEY CLUSTERED (id ASC)
+		PRIMARY KEY CLUSTERED (game_id ASC, developer_id ASC),
 	CONSTRAINT FK_GamesDevelopers_Games
 		FOREIGN KEY (game_id)
 			REFERENCES dbo.Games (id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,
+	CONSTRAINT FK_GamesDevelopers_Developers
+		FOREIGN KEY (developer_id)
+			REFERENCES dbo.Developers (id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+);
+
+-- Таблица "Издатели"
+CREATE TABLE GameDatabase.dbo.Publishers
+(
+	-- Столбцы
+	id		INTEGER			NOT NULL	IDENTITY,
+	title	NVARCHAR(255)	NOT NULL
+
+	-- Ограничения
+	CONSTRAINT PK_Publishers
+		PRIMARY KEY CLUSTERED (id ASC)
+);
+
+-- Таблица "Игры - Издатели"
+CREATE TABLE GameDatabase.dbo.Games_Publishers
+(
+	-- Столбцы
+	game_id			INTEGER	NOT NULL,
+	publisher_id	INTEGER NOT NULL
+
+	-- Ограничения
+	CONSTRAINT PK_GamesPublishers
+		PRIMARY KEY CLUSTERED (game_id ASC, publisher_id ASC),
+	CONSTRAINT FK_GamesPublishers_Games
+		FOREIGN KEY (game_id)
+			REFERENCES dbo.Games (id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,
+	CONSTRAINT FK_GamesPublishers_Publishers
+		FOREIGN KEY (publisher_id)
+			REFERENCES dbo.Publishers (id)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );
