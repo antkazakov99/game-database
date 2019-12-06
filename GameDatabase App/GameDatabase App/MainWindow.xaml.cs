@@ -27,8 +27,12 @@ namespace GameDatabase_App
             LoginWindow loginWindow = new LoginWindow();
             if (!(bool)loginWindow.ShowDialog())
                 this.Close();
-
             InitializeComponent();
+            Tag = loginWindow.Tag;
+            if((string)Tag == "Adm")
+            {
+                SettingsMenu.Visibility = Visibility.Visible;
+            }
             ShowGames();
             UpdateSearchParameters();
         }
@@ -175,31 +179,34 @@ namespace GameDatabase_App
                             gameTileGrid.Children.Add(buttons);
                             // -----------------------------------------------
 
-                            // Кнопка редактировать
-                            // -----------------------------------------------
-                            Button DeleteButton = new Button()
+                            if ((string)Tag == "Adm")
                             {
-                                Tag = dataReader.GetInt32(0),
-                                Padding = new Thickness(3),
-                                HorizontalAlignment = HorizontalAlignment.Right,
-                                Content = "Удалить"
-                            };
-                            DeleteButton.Click += DeleteGame_Click;
-                            buttons.Children.Add(DeleteButton);
-                            // -----------------------------------------------
+                                // Кнопка удалить
+                                // -----------------------------------------------
+                                Button DeleteButton = new Button()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Padding = new Thickness(3),
+                                    HorizontalAlignment = HorizontalAlignment.Right,
+                                    Content = "Удалить"
+                                };
+                                DeleteButton.Click += DeleteGame_Click;
+                                buttons.Children.Add(DeleteButton);
+                                // -----------------------------------------------
 
-                            // Кнопка редактировать
-                            // -----------------------------------------------
-                            Button EditButton = new Button()
-                            {
-                                Tag = dataReader.GetInt32(0),
-                                Padding = new Thickness(3),
-                                HorizontalAlignment = HorizontalAlignment.Right,
-                                Content = "Редактировать"
-                            };
-                            EditButton.Click += GameEditButton_Click;
-                            buttons.Children.Add(EditButton);
-                            // -----------------------------------------------
+                                // Кнопка редактировать
+                                // -----------------------------------------------
+                                Button EditButton = new Button()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Padding = new Thickness(3),
+                                    HorizontalAlignment = HorizontalAlignment.Right,
+                                    Content = "Редактировать"
+                                };
+                                EditButton.Click += GameEditButton_Click;
+                                buttons.Children.Add(EditButton);
+                                // -----------------------------------------------
+                            }
 
                             // Кнопка подробнее
                             // -----------------------------------------------

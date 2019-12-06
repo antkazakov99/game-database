@@ -17,7 +17,9 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0" Grid.ColumnSpan="100">
+        <Menu x:Name="SettingsMenu" Grid.Row="0" 
+              Grid.ColumnSpan="100"
+              Visibility="Collapsed">
             <MenuItem Header="Редактирование">
                 <MenuItem Header="Добавить...">
                     <MenuItem Header="Игра..." Click="AddGame_Click"/>

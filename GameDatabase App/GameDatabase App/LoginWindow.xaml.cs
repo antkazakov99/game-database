@@ -27,15 +27,44 @@ namespace GameDatabase_App
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Login.Text == "login" && Password.Password == "password")
-                DialogResult = true;
-            else
+            try
+            {
+                SqlConnectionStringBuilder sqlConnectionString = new SqlConnectionStringBuilder(Properties.Settings.Default.userConnection)
+                {
+                    UserID = Login.Text,
+                    Password = Password.Password
+                };
+                using (SqlConnection connection = new SqlConnection(sqlConnectionString.ConnectionString))
+                {
+                    connection.Open();
+                    if (connection.State == System.Data.ConnectionState.Open)
+                    {
+                        Properties.Settings.Default.userConnection = sqlConnectionString.ConnectionString;
+                        using (SqlCommand command = new SqlCommand("SELECT PERMISSIONS(OBJECT_ID('Games', 'U'))", connection))
+                        {
+                            int value = (int)command.ExecuteScalar();
+                            if (value > 20000)
+                            {
+                                Tag = "Adm";
+                            }
+                        }
+                        DialogResult = true;
+                    }
+                }
+            }
+            catch (SqlException)
+            {
                 InvalidLogOrPassHint.Visibility = Visibility.Visible;
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.userConnection += "Integrated Security = True;";
+            SqlConnectionStringBuilder sqlConnectionString = new SqlConnectionStringBuilder(Properties.Settings.Default.userConnection)
+            {
+                IntegratedSecurity = true
+            };
+            Properties.Settings.Default.userConnection = sqlConnectionString.ConnectionString;
             DialogResult = true;
         }
     }
