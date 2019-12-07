@@ -68,7 +68,7 @@ namespace GameDatabase_App
                 IntegratedSecurity = true
             };
             Properties.Settings.Default.userConnection = sqlConnectionString.ConnectionString;
-            OpenMainWindow(false);
+            OpenMainWindow(true);
         }
 
         private void OpenMainWindow(bool isAdmin = false)
