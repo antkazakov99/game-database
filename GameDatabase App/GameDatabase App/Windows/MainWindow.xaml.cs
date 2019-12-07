@@ -27,8 +27,8 @@ namespace GameDatabase_App
             if(isAdmin)
             {
                 SettingsMenu.Visibility = Visibility.Visible;
-                Tag = isAdmin;
             }
+            Tag = isAdmin;
             ShowGames();
             UpdateSearchParameters();
         }
