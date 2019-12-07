@@ -21,17 +21,13 @@ namespace GameDatabase_App
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(bool isAdmin = false)
         {
-            // Вход в приложение через логин
-            LoginWindow loginWindow = new LoginWindow();
-            if (!(bool)loginWindow.ShowDialog())
-                this.Close();
             InitializeComponent();
-            Tag = loginWindow.Tag;
-            if((bool)Tag)
+            if(isAdmin)
             {
                 SettingsMenu.Visibility = Visibility.Visible;
+                Tag = isAdmin;
             }
             ShowGames();
             UpdateSearchParameters();
@@ -528,6 +524,7 @@ namespace GameDatabase_App
                     SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Developers ORDER BY title ASC", connection);
                     // Выполнение запроса   
                     SqlDataReader dataReader = command.ExecuteReader();
+                    SearchDevelopersList.Children.Clear();
                     //Проверка наличия строк
                     if (dataReader.HasRows)
                     {
@@ -546,6 +543,7 @@ namespace GameDatabase_App
                     command.CommandText = "SELECT id, title FROM dbo.Publishers ORDER BY title ASC";
                     // Выполнение запроса   
                     dataReader = command.ExecuteReader();
+                    SearchPublishersList.Children.Clear();
                     //Проверка наличия строк
                     if (dataReader.HasRows)
                     {
@@ -564,6 +562,7 @@ namespace GameDatabase_App
                     command.CommandText = "SELECT id, title FROM dbo.Genres ORDER BY title ASC";
                     // Выполнение запроса   
                     dataReader = command.ExecuteReader();
+                    SearchGenresList.Children.Clear();
                     //Проверка наличия строк
                     if (dataReader.HasRows)
                     {
@@ -582,6 +581,7 @@ namespace GameDatabase_App
                     command.CommandText = "SELECT id, title FROM dbo.Platforms ORDER BY title ASC";
                     // Выполнение запроса   
                     dataReader = command.ExecuteReader();
+                    SearchPlatformsList.Children.Clear();
                     //Проверка наличия строк
                     if (dataReader.HasRows)
                     {
@@ -653,6 +653,13 @@ namespace GameDatabase_App
                 }
             }
             ShowGames();
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            EditWindow window = new EditWindow(int.Parse(((MenuItem)sender).Tag.ToString()));
+            window.ShowDialog();
+            UpdateSearchParameters();
         }
     }
 }

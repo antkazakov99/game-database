@@ -45,10 +45,13 @@ namespace GameDatabase_App
                             int value = (int)command.ExecuteScalar();
                             if (value > 20000)
                             {
-                                Tag = true;
+                                OpenMainWindow(true);
+                            }
+                            else
+                            {
+                                OpenMainWindow();
                             }
                         }
-                        DialogResult = true;
                     }
                 }
             }
@@ -65,8 +68,14 @@ namespace GameDatabase_App
                 IntegratedSecurity = true
             };
             Properties.Settings.Default.userConnection = sqlConnectionString.ConnectionString;
-            Tag = true;
-            DialogResult = true;
+            OpenMainWindow(true);
+        }
+
+        private void OpenMainWindow(bool isAdmin = false)
+        {
+            MainWindow window = new MainWindow(isAdmin);
+            window.Show();
+            Close();
         }
     }
 }

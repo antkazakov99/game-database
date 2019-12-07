@@ -24,6 +24,12 @@
                 <MenuItem Header="Добавить...">
                     <MenuItem Header="Игра..." Click="AddGame_Click"/>
                 </MenuItem>
+                <Separator/>
+                <MenuItem Header="Разработчики" Tag="0" Click="MenuItem_Click"/>
+                <MenuItem Header="Издатели" Tag="1"/>
+                <MenuItem Header="Жанры" Tag="2"/>
+                <MenuItem Header="Платформы" Tag="3"/>
+                <MenuItem Header="Рецензенты" Tag="4"/>
             </MenuItem>
         </Menu>
         <ScrollViewer Grid.Row="1"

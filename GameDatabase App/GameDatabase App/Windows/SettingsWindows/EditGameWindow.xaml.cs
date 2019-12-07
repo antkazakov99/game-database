@@ -694,12 +694,12 @@ namespace GameDatabase_App
                 {
                     MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                this.Close();
             }
             else
             {
                 MessageBox.Show("Поля заполнены некорректно", "Ошибка сохранения", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            this.Close();
         }
 
         // Добавление рецензента
