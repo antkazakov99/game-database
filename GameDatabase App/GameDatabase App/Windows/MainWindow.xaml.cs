@@ -520,82 +520,83 @@ namespace GameDatabase_App
                 {
                     // Открытие подключения
                     connection.Open();
-                    // Команда sql
-                    SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Developers ORDER BY title ASC", connection);
-                    // Выполнение запроса   
-                    SqlDataReader dataReader = command.ExecuteReader();
-                    SearchDevelopersList.Children.Clear();
-                    //Проверка наличия строк
-                    if (dataReader.HasRows)
+                    // Отображение списка разработчиков
+                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Developers ORDER BY title ASC", connection))
                     {
-                        while (dataReader.Read())
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            CheckBox developer = new CheckBox()
+                            SearchDevelopersList.Children.Clear();
+                            while (dataReader.Read())
                             {
-                                Tag = dataReader.GetInt32(0),
-                                Content = dataReader.GetString(1),
-                                FontSize = 11
-                            };
-                            SearchDevelopersList.Children.Add(developer);
+                                CheckBox developer = new CheckBox()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Content = dataReader.GetString(1),
+                                    FontSize = 11
+                                };
+                                SearchDevelopersList.Children.Add(developer);
+                            }
                         }
-                        dataReader.Close();
                     }
-                    command.CommandText = "SELECT id, title FROM dbo.Publishers ORDER BY title ASC";
-                    // Выполнение запроса   
-                    dataReader = command.ExecuteReader();
-                    SearchPublishersList.Children.Clear();
-                    //Проверка наличия строк
-                    if (dataReader.HasRows)
+
+                    // Отображение списка издателей
+                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Publishers ORDER BY title ASC", connection))
                     {
-                        while (dataReader.Read())
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            CheckBox publisher = new CheckBox()
+                            while (dataReader.Read())
                             {
-                                Tag = dataReader.GetInt32(0),
-                                Content = dataReader.GetString(1),
-                                FontSize = 11
-                            };
-                            SearchPublishersList.Children.Add(publisher);
+                                CheckBox publisher = new CheckBox()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Content = dataReader.GetString(1),
+                                    FontSize = 11
+                                };
+                                SearchPublishersList.Children.Add(publisher);
+                            }
                         }
-                        dataReader.Close();
                     }
-                    command.CommandText = "SELECT id, title FROM dbo.Genres ORDER BY title ASC";
-                    // Выполнение запроса   
-                    dataReader = command.ExecuteReader();
-                    SearchGenresList.Children.Clear();
-                    //Проверка наличия строк
-                    if (dataReader.HasRows)
+
+
+                    // Отображение списка жанров
+                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Genres ORDER BY title ASC", connection))
                     {
-                        while (dataReader.Read())
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            CheckBox genre = new CheckBox()
+                            while (dataReader.Read())
                             {
-                                Tag = dataReader.GetInt32(0),
-                                Content = dataReader.GetString(1),
-                                FontSize = 11
-                            };
-                            SearchGenresList.Children.Add(genre);
+                                CheckBox genre = new CheckBox()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Content = dataReader.GetString(1),
+                                    FontSize = 11
+                                };
+                                SearchGenresList.Children.Add(genre);
+                            }
                         }
-                        dataReader.Close();
                     }
-                    command.CommandText = "SELECT id, title FROM dbo.Platforms ORDER BY title ASC";
-                    // Выполнение запроса   
-                    dataReader = command.ExecuteReader();
-                    SearchPlatformsList.Children.Clear();
-                    //Проверка наличия строк
-                    if (dataReader.HasRows)
+
+
+                    // Отображение списка платформ
+                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Platforms ORDER BY title ASC", connection))
                     {
-                        while (dataReader.Read())
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            CheckBox genre = new CheckBox()
+                            while (dataReader.Read())
                             {
-                                Tag = dataReader.GetInt32(0),
-                                Content = dataReader.GetString(1),
-                                FontSize = 11
-                            };
-                            SearchPlatformsList.Children.Add(genre);
+                                CheckBox genre = new CheckBox()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Content = dataReader.GetString(1),
+                                    FontSize = 11
+                                };
+                                SearchPlatformsList.Children.Add(genre);
+                            }
                         }
-                        dataReader.Close();
                     }
                 }
             }
