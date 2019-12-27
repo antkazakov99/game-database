@@ -374,21 +374,23 @@ namespace GameDatabase_App
                         // Добавление/Редактирование игры
                         using (SqlCommand command = new SqlCommand() { Connection = connection })
                         {
-                            command.Parameters.Add(new SqlParameter("@id", (int)Tag));
                             command.Parameters.Add(new SqlParameter("@title", EditGameTitle.Text));
                             command.Parameters.Add(new SqlParameter("@release", EditGameRelease.SelectedDate != null ? (object)EditGameRelease.SelectedDate : DBNull.Value));
-                            command.Parameters.Add(new SqlParameter("@official", EditGameOfficial.Text));
+                            command.Parameters.Add(new SqlParameter("@website", EditGameOfficial.Text));
                             command.Parameters.Add(new SqlParameter("@summary", EditGameSummary.Text));
 
                             if ((int)Tag > 0)
                             {
-                                command.CommandText = @"UPDATE dbo.Games SET title = @title, release_date = @release, website = @official, summary = @summary WHERE id = @id";
+                                command.Parameters.Add(new SqlParameter("@id", (int)Tag));
+                                command.CommandText = @"UPDATE dbo.Games SET title = @title, release_date = @release, website = @website, summary = @summary WHERE id = @id";
                                 command.ExecuteNonQuery();
                             }
                             else
                             {
-                                command.CommandText = @"INSERT INTO dbo.Games (title, release_date, website, summary) VALUES (@title, @release, @official, @summary)";
+                                command.CommandText = "StrProc_AddGame";
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
                                 command.ExecuteNonQuery();
+                                command.CommandType = System.Data.CommandType.Text;
                                 command.CommandText = @"SELECT TOP(1) id FROM dbo.Games ORDER BY id DESC";
                                 using (SqlDataReader dataReader = command.ExecuteReader())
                                 {

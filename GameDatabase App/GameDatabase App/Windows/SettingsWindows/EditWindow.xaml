@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameDatabase_App"
         mc:Ignorable="d"
-        Title="EditWindow" MinHeight="600" MinWidth="800">
+        Title="Редактирование" MinHeight="600" MinWidth="800">
     <StackPanel MaxWidth="1000">
         <Label Content="Удаление:"/>
         <ScrollViewer>
