@@ -25,6 +25,7 @@ namespace GameDatabase_App
             InitializeComponent();
         }
 
+        // Вход по логину и паролю SQL
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -61,7 +62,8 @@ namespace GameDatabase_App
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        // Вход в режиме администратора с помощью Win аутентификации
+        private void WinAuthButton_Click(object sender, RoutedEventArgs e)
         {
             SqlConnectionStringBuilder sqlConnectionString = new SqlConnectionStringBuilder(Properties.Settings.Default.userConnection)
             {
@@ -71,6 +73,19 @@ namespace GameDatabase_App
             OpenMainWindow(true);
         }
 
+        // Вход в режиме чтения
+        private void ReaderButton_Click(object sender, RoutedEventArgs e)
+        {
+            SqlConnectionStringBuilder sqlConnectionString = new SqlConnectionStringBuilder(Properties.Settings.Default.userConnection)
+            {
+                IntegratedSecurity = true
+            };
+            Properties.Settings.Default.userConnection = sqlConnectionString.ConnectionString;
+            OpenMainWindow(false);
+        }
+
+
+        // Открытие главного меню
         private void OpenMainWindow(bool isAdmin = false)
         {
             MainWindow window = new MainWindow(isAdmin);

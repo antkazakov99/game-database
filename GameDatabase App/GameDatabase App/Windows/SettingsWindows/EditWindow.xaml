@@ -9,7 +9,7 @@
     <StackPanel MaxWidth="1000">
         <Label Content="Удаление:"/>
         <ScrollViewer>
-            <ListBox x:Name="Items" Height="250"/>
+            <ListBox x:Name="Items" Height="250" SelectionMode="Extended"/>
         </ScrollViewer>
         <Button Content="Удалить" Click="DeleteButton_Click"/>
         <Label Content="Добавление:"/>

@@ -7,6 +7,11 @@
         mc:Ignorable="d"
         Title="Авторизация"
         Width="370" Height="300" ResizeMode="NoResize">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+    </Window.Resources>
     <StackPanel Margin="10">
         <Label Content="Логин:"/>
         <TextBox  x:Name="Login"/>
@@ -20,7 +25,10 @@
                Visibility="Hidden"/>
         <Button Content="Вход" 
                 Click="LoginButton_Click" 
-                IsDefault="True" 
-                Padding="5"/>
+                IsDefault="True"/>
+        <Button Content="Вход с помощью Windows аутентификации" 
+                Click="WinAuthButton_Click"/>
+        <Button Content="Вход в режиме чтения"
+                Click="ReaderButton_Click"/>
     </StackPanel>
 </Window>

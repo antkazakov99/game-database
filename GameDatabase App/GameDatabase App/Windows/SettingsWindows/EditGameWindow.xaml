@@ -48,9 +48,12 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Width="300">
-                        <Label Content="Рецензенты"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Click="EditButton_Click" Content="Редактировать" Margin="0" Padding="5 0"/>
+                            <Label Content="Рецензенты:"/>
+                        </StackPanel>
                         <ListBox x:Name="Reviewers" Height="250"/>
-                        <Button Content="Добавить" Click="AddReview_Click"/>
+                        <Button Content="Добавить" Click="AddReview_Click" Margin="0 5"/>
                     </StackPanel>
                     <ScrollViewer Grid.Column="1">
                         <StackPanel x:Name="ReviewsList" MaxWidth="1000"/>

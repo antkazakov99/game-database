@@ -7,6 +7,14 @@
         mc:Ignorable="d"
         MinHeight="600" MinWidth="800"
         Title="Magnum opus">
+    <Window.Resources>
+        <Style x:Key="EditButtons" TargetType="Button">
+            <EventSetter Event="Click" Handler="EditButton_Click"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="Content" Value="Редактировать"/>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -17,24 +25,9 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Menu x:Name="SettingsMenu" Grid.Row="0" 
-              Grid.ColumnSpan="100"
-              Visibility="Collapsed">
-            <MenuItem Header="Редактирование">
-                <MenuItem Header="Добавить...">
-                    <MenuItem Header="Игра..." Click="AddGame_Click"/>
-                </MenuItem>
-                <Separator/>
-                <MenuItem Header="Разработчики" Tag="0" Click="MenuItem_Click"/>
-                <MenuItem Header="Издатели" Tag="1" Click="MenuItem_Click"/>
-                <MenuItem Header="Жанры" Tag="2" Click="MenuItem_Click"/>
-                <MenuItem Header="Платформы" Tag="3" Click="MenuItem_Click"/>
-                <MenuItem Header="Рецензенты" Tag="4" Click="MenuItem_Click"/>
-            </MenuItem>
-        </Menu>
-        <ScrollViewer Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1">
             <StackPanel Width="300" Margin="5">
+                <!-- Параметры сортировки -->
                 <Label Content="Сортировать по:"/>
                 <ComboBox x:Name="SortByComboBox">
                     <ComboBoxItem Tag="0" Content="Название (По возростанию)" IsSelected="True"/>
@@ -44,32 +37,44 @@
                     <ComboBoxItem Tag="4" Content="Оценка (По возростанию)"/>
                     <ComboBoxItem Tag="5" Content="Оценка (По убыванию)"/>
                 </ComboBox>
+                
+                <!-- Параметры поиска по средней оценки -->
                 <Label Content="Средняя оценка:"/>
                 <DockPanel VerticalAlignment="Center" Margin="5">
-                    <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreFromSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0"  VerticalContentAlignment="Center" />
-                    <Label Content="С " Width="30"/>
+                    <TextBox IsEnabled="False" 
+                             Width="40" 
+                             Text="{Binding ElementName=GameScoreFromSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0"  VerticalContentAlignment="Center" />
+                    <Label Content="С " 
+                           Width="30"/>
                     <Slider x:Name="GameScoreFromSlider"
-                    Minimum="0" 
-                    Maximum="100" 
-                    Value="0" 
-                    TickPlacement="BottomRight" 
-                    TickFrequency="5" 
-                    IsSnapToTickEnabled="True" ValueChanged="GameScoreFromSlider_ValueChanged"/>
+                            Minimum="0" 
+                            Maximum="100" 
+                            Value="0" 
+                            TickPlacement="BottomRight" 
+                            TickFrequency="5" 
+                            IsSnapToTickEnabled="True" 
+                            ValueChanged="GameScoreFromSlider_ValueChanged"/>
                 </DockPanel>
                 <DockPanel VerticalAlignment="Center" Margin="5">
-                    <TextBox IsEnabled="False" Width="40" Text="{Binding ElementName=GameScoreToSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0" VerticalContentAlignment="Center"/>
+                    <TextBox IsEnabled="False" 
+                             Width="40" 
+                             Text="{Binding ElementName=GameScoreToSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" Margin="5 0" VerticalContentAlignment="Center"/>
                     <Label Content="До" Width="30"/>
                     <Slider x:Name="GameScoreToSlider"
-                    Minimum="0" 
-                    Maximum="100" 
-                    Value="100" 
-                    TickPlacement="BottomRight" 
-                    TickFrequency="5" 
-                    IsSnapToTickEnabled="True" ValueChanged="GameScoreToSlider_ValueChanged"
-                    />
+                            Minimum="0" 
+                            Maximum="100" 
+                            Value="100" 
+                            TickPlacement="BottomRight" 
+                            TickFrequency="5" 
+                            IsSnapToTickEnabled="True" 
+                            ValueChanged="GameScoreToSlider_ValueChanged"/>
                 </DockPanel>
+                
+                <!-- Параметры поиска по названию игры -->
                 <Label Content="Название игры:"/>
                 <TextBox x:Name="GameTitleSearchTextBlock" />
+                
+                <!-- Параметры поиска по дате выхода -->
                 <Label Content="Дата выхода:"/>
                 <StackPanel Orientation="Horizontal">
                     <Label Content="с"/>
@@ -77,24 +82,104 @@
                     <Label Content="по"/>
                     <DatePicker x:Name="GameReleaseToDatePicker"/>
                 </StackPanel>
-                <Label Content="Разработчики:"/>
-                <StackPanel x:Name="SearchDevelopersList"/>
-                <Label Content="Издатели:"/>
-                <StackPanel x:Name="SearchPublishersList"/>
-                <Label Content="Жанры:"/>
-                <StackPanel x:Name="SearchGenresList"/>
-                <Label Content="Платформы:"/>
-                <StackPanel x:Name="SearchPlatformsList"/>
+                
+                <!-- Параметры поиска по разработчикам -->
+                <GroupBox Padding="0 5">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" 
+                                    Margin="0 5">
+                            <Button x:Name="EditDevelopersButton"
+                                    Style="{StaticResource EditButtons}"
+                                    Tag="0"/>
+                            <Label Content="Разработчики:"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              MaxHeight="100">
+                        <StackPanel x:Name="SearchDevelopersList"/>
+                    </ScrollViewer>
+                </GroupBox>
+                
+                <!-- Параметры поиска по издателям -->
+                <GroupBox Padding="0 5">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <Button x:Name="EditPublishersButton" 
+                                    Style="{StaticResource EditButtons}"
+                                    Tag="1"/>
+                            <Label Content="Издатели:"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              MaxHeight="100">
+                        <StackPanel x:Name="SearchPublishersList"/>
+                    </ScrollViewer>
+                </GroupBox>
+                
+                <!-- Параметры поиска по жанрам -->
+                <GroupBox Padding="0 5">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <Button x:Name="EditGenresButton"
+                                    Style="{StaticResource EditButtons}"
+                                    Tag="2"/>
+                            <Label Content="Жанры:"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              MaxHeight="100">
+                        <StackPanel x:Name="SearchGenresList"/>
+                    </ScrollViewer>
+                </GroupBox>
+                
+                <!-- Параметры поиска по платформам -->
+                <GroupBox Padding="0 5">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <Button x:Name="EditPlatformsButton" 
+                                    Style="{StaticResource EditButtons}"
+                                    Tag="3"/>
+                            <Label Content="Платформы:"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              MaxHeight="100">
+                        <StackPanel x:Name="SearchPlatformsList"/>
+                    </ScrollViewer>
+                </GroupBox>
+                
             </StackPanel>
         </ScrollViewer>
-        <StackPanel Grid.Row="2">
-            <Button x:Name="SearchButton" Click="SearchButton_Click" Content="Поиск" IsDefault="True"/>
-            <Button x:Name="ClearSearchButton" Click="ClearSearchButton_Click" Content="Очистить"/>
+        <StackPanel Grid.Row="2" Margin="0 10">
+            <Button x:Name="SearchButton" 
+                    Click="SearchButton_Click" 
+                    Content="Поиск" 
+                    IsDefault="True" 
+                    Padding="5"/>
+            <Button x:Name="ClearSearchButton" 
+                    Click="ClearSearchButton_Click" 
+                    Content="Очистить" 
+                    Padding="5"/>
+            <Button x:Name="AddGameButton" 
+                    Click="AddGame_Click" 
+                    Content="Добавить игру" 
+                    Padding="5" 
+                    Visibility="Collapsed"/>
         </StackPanel>
         <ScrollViewer Grid.Column="1" 
                       Grid.Row="1" 
                       Grid.RowSpan="2">
-            <StackPanel x:Name="GamesList" MaxWidth="1000"/>
+            <Grid>
+                <TextBlock x:Name="NoResultsTextBlock"
+                           FontSize="36"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Text="По указанным параметрам поиска результатов не найдено"/>
+                <StackPanel x:Name="GamesList"
+                            MaxWidth="1000"/>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Window>

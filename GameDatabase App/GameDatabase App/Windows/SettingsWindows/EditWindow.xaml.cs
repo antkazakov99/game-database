@@ -79,82 +79,91 @@ namespace GameDatabase_App
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if(Items.SelectedItem != null)
             {
-                using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
+                foreach (ListBoxItem item in Items.SelectedItems)
                 {
-                    connection.Open();
-
-                    using (SqlCommand command = new SqlCommand() { Connection = connection })
+                    try
                     {
-                        command.Parameters.Add(new SqlParameter("@id", (int)((ListBoxItem)Items.SelectedItem).Tag));
-                        switch ((int)Tag)
+                        using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
                         {
-                            case 0:
-                                command.CommandText = @"DELETE FROM dbo.Developers WHERE id = @id";
-                                break;
-                            case 1:
-                                command.CommandText = @"DELETE FROM dbo.Publishers WHERE id = @id";
-                                break;
-                            case 2:
-                                command.CommandText = @"DELETE FROM dbo.Genres WHERE id = @id";
-                                break;
-                            case 3:
-                                command.CommandText = @"DELETE FROM dbo.Platforms WHERE id = @id";
-                                break;
-                            case 4:
-                                command.CommandText = @"DELETE FROM dbo.Reviewers WHERE id = @id";
-                                break;
+                            connection.Open();
+
+                            using (SqlCommand command = new SqlCommand() { Connection = connection })
+                            {
+                                command.Parameters.Add(new SqlParameter("@id", (int)(item.Tag)));
+                                switch ((int)Tag)
+                                {
+                                    case 0:
+                                        command.CommandText = @"DELETE FROM dbo.Developers WHERE id = @id";
+                                        break;
+                                    case 1:
+                                        command.CommandText = @"DELETE FROM dbo.Publishers WHERE id = @id";
+                                        break;
+                                    case 2:
+                                        command.CommandText = @"DELETE FROM dbo.Genres WHERE id = @id";
+                                        break;
+                                    case 3:
+                                        command.CommandText = @"DELETE FROM dbo.Platforms WHERE id = @id";
+                                        break;
+                                    case 4:
+                                        command.CommandText = @"DELETE FROM dbo.Reviewers WHERE id = @id";
+                                        break;
+                                }
+                                command.ExecuteNonQuery();
+                            }
                         }
-                        command.ExecuteNonQuery();
+                    }
+                    catch (SqlException ex)
+                    {
+                        MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
-            }
-            catch (SqlException ex)
-            {
-                MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             Show((int)Tag);
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (AddItem.Text != "")
             {
-                using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
+                try
                 {
-                    connection.Open();
-
-                    using (SqlCommand command = new SqlCommand() { Connection = connection })
+                    using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
                     {
-                        command.Parameters.Add(new SqlParameter("@title", AddItem.Text));
-                        switch ((int)Tag)
+                        connection.Open();
+
+                        using (SqlCommand command = new SqlCommand() { Connection = connection })
                         {
-                            case 0:
-                                command.CommandText = @"INSERT INTO dbo.Developers (title) VALUES (@title)";
-                                break;
-                            case 1:
-                                command.CommandText = @"INSERT INTO dbo.Publishers (title) VALUES (@title)";
-                                break;
-                            case 2:
-                                command.CommandText = @"INSERT INTO dbo.Genres (title) VALUES (@title)";
-                                break;
-                            case 3:
-                                command.CommandText = @"INSERT INTO dbo.Platforms (title) VALUES (@title)";
-                                break;
-                            case 4:
-                                command.CommandText = @"INSERT INTO dbo.Reviewers (title) VALUES (@title)";
-                                break;
+                            command.Parameters.Add(new SqlParameter("@title", AddItem.Text));
+                            switch ((int)Tag)
+                            {
+                                case 0:
+                                    command.CommandText = @"INSERT INTO dbo.Developers (title) VALUES (@title)";
+                                    break;
+                                case 1:
+                                    command.CommandText = @"INSERT INTO dbo.Publishers (title) VALUES (@title)";
+                                    break;
+                                case 2:
+                                    command.CommandText = @"INSERT INTO dbo.Genres (title) VALUES (@title)";
+                                    break;
+                                case 3:
+                                    command.CommandText = @"INSERT INTO dbo.Platforms (title) VALUES (@title)";
+                                    break;
+                                case 4:
+                                    command.CommandText = @"INSERT INTO dbo.Reviewers (title) VALUES (@title)";
+                                    break;
+                            }
+                            command.ExecuteNonQuery();
                         }
-                        command.ExecuteNonQuery();
                     }
                 }
+                catch (SqlException ex)
+                {
+                    MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                Show((int)Tag);
             }
-            catch (SqlException ex)
-            {
-                MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            Show((int)Tag);
         }
     }
 }
