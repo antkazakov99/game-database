@@ -26,17 +26,148 @@ namespace GameDatabase_App
             InitializeComponent();
             if(isAdmin)
             {
-                SettingsMenu.Visibility = Visibility.Visible;
+                AddGameButton.Visibility = Visibility.Visible;
+                EditDevelopersButton.Visibility =
+                    EditGenresButton.Visibility =
+                    EditPublishersButton.Visibility =
+                    EditPlatformsButton.Visibility = Visibility.Visible;
             }
             Tag = isAdmin;
             ShowGames();
-            UpdateSearchParameters();
+            UpdateDevelopersList();
+            UpdatePublishersList();
+            UpdateGenresList();
+            UpdatePlatformsList();
         }
+
+        // Поиск
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowGames();
+        }
+
+        // Очистка параметров поиска
+        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameTitleSearchTextBlock.Clear();
+            GameReleaseFromDatePicker.SelectedDate = null;
+            GameReleaseToDatePicker.SelectedDate = null;
+            GameScoreFromSlider.Value = 0;
+            GameScoreToSlider.Value = 100;
+            foreach (CheckBox developer in SearchDevelopersList.Children)
+            {
+                developer.IsChecked = false;
+            }
+            foreach (CheckBox publisher in SearchPublishersList.Children)
+            {
+                publisher.IsChecked = false;
+            }
+            foreach (CheckBox genre in SearchGenresList.Children)
+            {
+                genre.IsChecked = false;
+            }
+            foreach (CheckBox platform in SearchPlatformsList.Children)
+            {
+                platform.IsChecked = false;
+            }
+            SortByComboBox.SelectedIndex = 0;
+            ShowGames();
+        }
+
+        // Значение слайдера не может быть выше значения второго слайдера
+        private void GameScoreFromSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (e.NewValue > GameScoreToSlider.Value)
+                GameScoreFromSlider.Value = e.OldValue;
+        }
+
+        // Значение слайдера не может быть ниже значения первого слайдера
+        private void GameScoreToSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (e.NewValue < GameScoreFromSlider.Value)
+                GameScoreToSlider.Value = e.OldValue;
+        }
+
+        // Открытие окна игры
+        private void GameMoreInfoButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag, (bool)Tag ? true : false);
+            gameWindow.Show();
+        }
+
+        // Открытие окна редактирования игры
+        private void GameEditButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditGameWindow window = new EditGameWindow((int)((Button)sender).Tag);
+            window.ShowDialog();
+            ShowGames();
+        }
+
+        // Открытие окна добавления игры
+        private void AddGame_Click(object sender, RoutedEventArgs e)
+        {
+            EditGameWindow window = new EditGameWindow();
+            window.ShowDialog();
+            ShowGames();
+        }
+
+        // Удаление игры
+        private void DeleteGame_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show($"Вы действительно хотите удалить {((Label)(((Grid)(((StackPanel)(((Button)sender).Parent)).Parent)).Children[1])).Content}?", "Удаление игры", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
+                    {
+                        connection.Open();
+
+                        using (SqlCommand command = new SqlCommand($@"DELETE FROM dbo.Games WHERE dbo.Games.id = @id", connection))
+                        {
+                            command.Parameters.Add(new SqlParameter("@id", ((Button)sender).Tag));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            ShowGames();
+        }
+
+        // Открытие окна редактирования
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            string id = ((Button)sender).Tag.ToString();
+            EditWindow window = new EditWindow(int.Parse(id));
+            window.ShowDialog();
+            switch (id)
+            {
+                case "0":
+                    UpdateDevelopersList();
+                    break;
+                case "1":
+                    UpdatePublishersList();
+                    break;
+                case "2":
+                    UpdateGenresList();
+                    break;
+                case "3":
+                    UpdatePlatformsList();
+                    break;
+            }
+            ShowGames();
+        }
+
 
         // Получение списка игр по указанным параметрам поиска  
         private void ShowGames()
         {
             // Очистка списка
+            NoResultsTextBlock.Visibility = Visibility.Hidden;
             GamesList.Children.Clear();
             try
             {
@@ -59,161 +190,13 @@ namespace GameDatabase_App
                                 if (GamesList.Children.Count > 0)
                                     GamesList.Children.Add(new Separator());
                                 // -----------------------------------------------
-
-                                // Создание Grid в который будет компоноваться Tile
-                                // -----------------------------------------------
-                                Grid gameTileGrid = new Grid()
-                                {
-                                    Height = 210,
-                                    Margin = new Thickness(2)
-                                };
-                                GamesList.Children.Add(gameTileGrid);
-                                // Столбцы
-                                gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                                gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                                gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                                // Строки
-                                gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                                gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                                gameTileGrid.RowDefinitions.Add(new RowDefinition());
-                                gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                                // -----------------------------------------------
-
-                                // Обложка игры
-                                // -----------------------------------------------
-                                Border gameCoverBorder = new Border()
-                                {
-                                    BorderThickness = new Thickness(1),
-                                    BorderBrush = new SolidColorBrush(Colors.Black),
-                                    Margin = new Thickness(5),
-                                    Height = 180,
-                                    Width = 120,
-                                    VerticalAlignment = VerticalAlignment.Top
-                                };
-                                gameCoverBorder.Child = new Image()
-                                {
-                                    Stretch = Stretch.Uniform
-                                };
-                                gameTileGrid.Children.Add(gameCoverBorder);
-                                Grid.SetRowSpan(gameCoverBorder, 4);
-                                // -----------------------------------------------
-
-                                // Название игры
-                                // -----------------------------------------------
-                                Label gameTitleLabel = new Label()
-                                {
-                                    Content = dataReader.GetString(1),
-                                    FontSize = 18
-                                };
-                                gameTileGrid.Children.Add(gameTitleLabel);
-                                Grid.SetColumn(gameTitleLabel, 1);
-                                // -----------------------------------------------
-
-                                // Дата выхода игры
-                                // -----------------------------------------------
-                                Label gameReleaseDateLabel = new Label()
-                                {
-                                    Content = $"Дата выхода: " +
-                                    $"{(dataReader.IsDBNull(3) ? "TBA" : DateTime.Parse(dataReader.GetDateTime(3).ToString()).ToShortDateString())}",
-                                    FontSize = 10
-                                };
-                                gameTileGrid.Children.Add(gameReleaseDateLabel);
-                                Grid.SetColumn(gameReleaseDateLabel, 1);
-                                Grid.SetRow(gameReleaseDateLabel, 1);
-                                // -----------------------------------------------
-
-                                // Оценка игры
-                                // -----------------------------------------------
-                                Border gameScoreBorder = new Border()
-                                {
-                                    Background = dataReader.IsDBNull(4) || dataReader.GetInt32(4) <= 50 ? new SolidColorBrush(Colors.Red) : (dataReader.GetInt32(4) <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen)),
-                                    Margin = new Thickness(5),
-                                    BorderThickness = new Thickness(1),
-                                    BorderBrush = new SolidColorBrush(Colors.Black),
-                                    Height = 50,
-                                    Width = 50
-                                };
-                                gameScoreBorder.Child = new Label()
-                                {
-                                    FontSize = 24,
-                                    HorizontalAlignment = HorizontalAlignment.Center,
-                                    VerticalAlignment = VerticalAlignment.Center,
-                                    Content = dataReader.IsDBNull(4) ? "-" : dataReader.GetInt32(4).ToString()
-                                };
-                                gameTileGrid.Children.Add(gameScoreBorder);
-                                Grid.SetColumn(gameScoreBorder, 2);
-                                Grid.SetRow(gameScoreBorder, 0);
-                                Grid.SetRowSpan(gameScoreBorder, 2);
-                                // -----------------------------------------------
-
-                                // Описание игры
-                                // -----------------------------------------------
-                                TextBlock gameSummaryTextBlock = new TextBlock()
-                                {
-                                    Text = dataReader.GetString(2),
-                                    TextWrapping = TextWrapping.Wrap,
-                                    Margin = new Thickness(3)
-                                };
-                                gameTileGrid.Children.Add(gameSummaryTextBlock);
-                                Grid.SetColumn(gameSummaryTextBlock, 1);
-                                Grid.SetRow(gameSummaryTextBlock, 2);
-                                Grid.SetColumnSpan(gameSummaryTextBlock, 2);
-                                // -----------------------------------------------
-
-                                // Панель кнопок в нижней части плитки
-                                // -----------------------------------------------
-                                StackPanel buttons = new StackPanel()
-                                {
-                                    Orientation = Orientation.Horizontal,
-                                    HorizontalAlignment = HorizontalAlignment.Right,
-                                    Margin = new Thickness(5),
-                                };
-                                gameTileGrid.Children.Add(buttons);
-                                Grid.SetColumn(buttons, 1);
-                                Grid.SetColumnSpan(buttons, 3);
-                                Grid.SetRow(buttons, 4);
-                                // -----------------------------------------------
-
-                                if ((bool)Tag)
-                                {
-                                    // Кнопка удалить
-                                    // -----------------------------------------------
-                                    Button DeleteButton = new Button()
-                                    {
-                                        Tag = dataReader.GetInt32(0),
-                                        Padding = new Thickness(3),
-                                        HorizontalAlignment = HorizontalAlignment.Right,
-                                        Content = "Удалить"
-                                    };
-                                    DeleteButton.Click += DeleteGame_Click;
-                                    buttons.Children.Add(DeleteButton);
-                                    // -----------------------------------------------
-
-                                    // Кнопка редактировать
-                                    // -----------------------------------------------
-                                    Button EditButton = new Button()
-                                    {
-                                        Tag = dataReader.GetInt32(0),
-                                        Padding = new Thickness(3),
-                                        HorizontalAlignment = HorizontalAlignment.Right,
-                                        Content = "Редактировать"
-                                    };
-                                    EditButton.Click += GameEditButton_Click;
-                                    buttons.Children.Add(EditButton);
-                                    // -----------------------------------------------
-                                }
-
-                                // Кнопка подробнее
-                                // -----------------------------------------------
-                                Button gameMoreInfoButton = new Button()
-                                {
-                                    Tag = dataReader.GetInt32(0),
-                                    Padding = new Thickness(3),
-                                    Content = "Подробнее..."
-                                };
-                                gameMoreInfoButton.Click += GameMoreInfoButton_Click;
-                                buttons.Children.Add(gameMoreInfoButton);
-                                // -----------------------------------------------
+                                GamesList.Children.Add(
+                                    GenerateGameTile(
+                                        dataReader.GetInt32(0), 
+                                        dataReader.GetString(1), 
+                                        dataReader.IsDBNull(3) ? null : (DateTime?)dataReader.GetDateTime(3),
+                                        dataReader.IsDBNull(4) ? null : (int?)dataReader.GetInt32(4),
+                                        dataReader.GetString(2)));
                             }
                         }
                     }
@@ -223,16 +206,178 @@ namespace GameDatabase_App
             {
                 MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            if (GamesList.Children.Count == 0)
+                NoResultsTextBlock.Visibility = Visibility.Visible;
         }
-    
+
+        private Grid GenerateGameTile(int id, string title, DateTime? release, int? score, string summary)
+        {
+            // Создание Grid в который будет компоноваться Tile
+            // -----------------------------------------------
+            Grid gameTileGrid = new Grid()
+            {
+                Height = 210,
+                Margin = new Thickness(2)
+            };
+            // Столбцы
+            gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+            gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            gameTileGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+            // Строки
+            gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            gameTileGrid.RowDefinitions.Add(new RowDefinition());
+            gameTileGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            // -----------------------------------------------
+
+            // Обложка игры
+            // -----------------------------------------------
+            Border gameCoverBorder = new Border()
+            {
+                BorderThickness = new Thickness(1),
+                BorderBrush = new SolidColorBrush(Colors.Black),
+                Margin = new Thickness(5),
+                Height = 180,
+                Width = 120,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+            gameCoverBorder.Child = new Image()
+            {
+                Stretch = Stretch.Uniform
+            };
+            gameTileGrid.Children.Add(gameCoverBorder);
+            Grid.SetRowSpan(gameCoverBorder, 4);
+            // -----------------------------------------------
+
+            // Название игры
+            // -----------------------------------------------
+            Label gameTitleLabel = new Label()
+            {
+                Content = title,
+                FontSize = 18
+            };
+            gameTileGrid.Children.Add(gameTitleLabel);
+            Grid.SetColumn(gameTitleLabel, 1);
+            // -----------------------------------------------
+
+            // Дата выхода игры
+            // -----------------------------------------------
+            Label gameReleaseDateLabel = new Label()
+            {
+                Content = $"Дата выхода: " +
+                $"{(release == null ? "TBA" : DateTime.Parse(release.ToString()).ToShortDateString())}",
+                FontSize = 10
+            };
+            gameTileGrid.Children.Add(gameReleaseDateLabel);
+            Grid.SetColumn(gameReleaseDateLabel, 1);
+            Grid.SetRow(gameReleaseDateLabel, 1);
+            // -----------------------------------------------
+
+            // Оценка игры
+            // -----------------------------------------------
+            Border gameScoreBorder = new Border()
+            {
+                Background = score == null || score <= 50 ? new SolidColorBrush(Colors.Red) : (score <= 70 ? new SolidColorBrush(Colors.Gold) : new SolidColorBrush(Colors.YellowGreen)),
+                Margin = new Thickness(5),
+                BorderThickness = new Thickness(1),
+                BorderBrush = new SolidColorBrush(Colors.Black),
+                Height = 50,
+                Width = 50
+            };
+            gameScoreBorder.Child = new Label()
+            {
+                FontSize = 24,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Content = score == null ? "-" : score.ToString()
+            };
+            gameTileGrid.Children.Add(gameScoreBorder);
+            Grid.SetColumn(gameScoreBorder, 2);
+            Grid.SetRow(gameScoreBorder, 0);
+            Grid.SetRowSpan(gameScoreBorder, 2);
+            // -----------------------------------------------
+
+            // Описание игры
+            // -----------------------------------------------
+            TextBlock gameSummaryTextBlock = new TextBlock()
+            {
+                Text = summary,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(3),
+                TextTrimming = TextTrimming.WordEllipsis,
+            };
+            gameTileGrid.Children.Add(gameSummaryTextBlock);
+            Grid.SetColumn(gameSummaryTextBlock, 1);
+            Grid.SetRow(gameSummaryTextBlock, 2);
+            Grid.SetColumnSpan(gameSummaryTextBlock, 2);
+            // -----------------------------------------------
+
+            // Панель кнопок в нижней части плитки
+            // -----------------------------------------------
+            StackPanel buttons = new StackPanel()
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(5),
+            };
+            gameTileGrid.Children.Add(buttons);
+            Grid.SetColumn(buttons, 1);
+            Grid.SetColumnSpan(buttons, 3);
+            Grid.SetRow(buttons, 4);
+            // -----------------------------------------------
+
+            if ((bool)Tag)
+            {
+                // Кнопка удалить
+                // -----------------------------------------------
+                Button DeleteButton = new Button()
+                {
+                    Tag = id,
+                    Padding = new Thickness(3),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    Content = "Удалить"
+                };
+                DeleteButton.Click += DeleteGame_Click;
+                buttons.Children.Add(DeleteButton);
+                // -----------------------------------------------
+
+                // Кнопка редактировать
+                // -----------------------------------------------
+                Button EditButton = new Button()
+                {
+                    Tag = id,
+                    Padding = new Thickness(3),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    Content = "Редактировать"
+                };
+                EditButton.Click += GameEditButton_Click;
+                buttons.Children.Add(EditButton);
+                // -----------------------------------------------
+            }
+
+            // Кнопка подробнее
+            // -----------------------------------------------
+            Button gameMoreInfoButton = new Button()
+            {
+                Tag = id,
+                Padding = new Thickness(3),
+                Content = "Подробнее..."
+            };
+            gameMoreInfoButton.Click += GameMoreInfoButton_Click;
+            buttons.Children.Add(gameMoreInfoButton);
+            // -----------------------------------------------
+            return gameTileGrid;
+        }
+
         // Формирование поискового запроса для SQL Server
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<Ожидание>")]
         private SqlCommand GenerateSqlCommand(SqlConnection connection)
         {
             // Основной текст запроса, в случае отсутствие условий поиска выполняется только он
             SqlCommand command = new SqlCommand()
             {
                 CommandText =
-                " SELECT dbo.Games.id, dbo.Games.title, dbo.Games.summary, dbo.Games.release_date, GameScore.avg_score" +
+                " SELECT DISTINCT dbo.Games.id, dbo.Games.title, dbo.Games.summary, dbo.Games.release_date, GameScore.avg_score" +
                 " FROM dbo.Games" +
                     " LEFT OUTER JOIN (" +
                         " SELECT game_id, AVG(score) AS avg_score" +
@@ -417,58 +562,9 @@ namespace GameDatabase_App
             return command;
         }
 
-        // Поиск
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        // Обновление списка разработиков
+        private void UpdateDevelopersList()
         {
-            ShowGames();
-        }
-
-        // Очистка параметров поиска
-        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            GameTitleSearchTextBlock.Clear();
-            GameReleaseFromDatePicker.SelectedDate = null;
-            GameReleaseToDatePicker.SelectedDate = null;
-            GameScoreFromSlider.Value = 0;
-            GameScoreToSlider.Value = 100;
-            foreach (CheckBox developer in SearchDevelopersList.Children)
-            {
-                developer.IsChecked = false;
-            }
-            foreach (CheckBox publisher in SearchPublishersList.Children)
-            {
-                publisher.IsChecked = false;
-            }
-            foreach (CheckBox genre in SearchGenresList.Children)
-            {
-                genre.IsChecked = false;
-            }
-            foreach (CheckBox platform in SearchPlatformsList.Children)
-            {
-                platform.IsChecked = false;
-            }
-            SortByComboBox.SelectedIndex = 0;
-        }
-
-        // Значение слайдера не может быть выше значения второго слайдера
-        private void GameScoreFromSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (e.NewValue > GameScoreToSlider.Value)
-                GameScoreFromSlider.Value = e.OldValue;
-        }
-
-        // Значение слайдера не может быть ниже значения первого слайдера
-        private void GameScoreToSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (e.NewValue < GameScoreFromSlider.Value)
-                GameScoreToSlider.Value = e.OldValue;
-        }
-
-        // Загрузка в раздел поиска информации о разработчиках, издателях, жанрах и платформах
-        private void UpdateSearchParameters()
-        {
-            // Очистка списка
-            SearchDevelopersList.Children.Clear();
             try
             {
                 // Подключение
@@ -485,72 +581,13 @@ namespace GameDatabase_App
                             SearchDevelopersList.Children.Clear();
                             while (dataReader.Read())
                             {
-                                CheckBox developer = new CheckBox()
+                                CheckBox item = new CheckBox()
                                 {
                                     Tag = dataReader.GetInt32(0),
                                     Content = dataReader.GetString(1),
                                     FontSize = 11
                                 };
-                                SearchDevelopersList.Children.Add(developer);
-                            }
-                        }
-                    }
-
-                    // Отображение списка издателей
-                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Publishers ORDER BY title ASC", connection))
-                    {
-                        // Выполнение запроса   
-                        using (SqlDataReader dataReader = command.ExecuteReader())
-                        {
-                            while (dataReader.Read())
-                            {
-                                CheckBox publisher = new CheckBox()
-                                {
-                                    Tag = dataReader.GetInt32(0),
-                                    Content = dataReader.GetString(1),
-                                    FontSize = 11
-                                };
-                                SearchPublishersList.Children.Add(publisher);
-                            }
-                        }
-                    }
-
-
-                    // Отображение списка жанров
-                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Genres ORDER BY title ASC", connection))
-                    {
-                        // Выполнение запроса   
-                        using (SqlDataReader dataReader = command.ExecuteReader())
-                        {
-                            while (dataReader.Read())
-                            {
-                                CheckBox genre = new CheckBox()
-                                {
-                                    Tag = dataReader.GetInt32(0),
-                                    Content = dataReader.GetString(1),
-                                    FontSize = 11
-                                };
-                                SearchGenresList.Children.Add(genre);
-                            }
-                        }
-                    }
-
-
-                    // Отображение списка платформ
-                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Platforms ORDER BY title ASC", connection))
-                    {
-                        // Выполнение запроса   
-                        using (SqlDataReader dataReader = command.ExecuteReader())
-                        {
-                            while (dataReader.Read())
-                            {
-                                CheckBox genre = new CheckBox()
-                                {
-                                    Tag = dataReader.GetInt32(0),
-                                    Content = dataReader.GetString(1),
-                                    FontSize = 11
-                                };
-                                SearchPlatformsList.Children.Add(genre);
+                                SearchDevelopersList.Children.Add(item);
                             }
                         }
                     }
@@ -562,61 +599,116 @@ namespace GameDatabase_App
             }
         }
 
-        // Открытие окна игры
-        private void GameMoreInfoButton_Click(object sender, RoutedEventArgs e)
+        // Обновление списка издателей
+        private void UpdatePublishersList()
         {
-            GameWindow gameWindow = new GameWindow((int)((Button)sender).Tag, (bool)Tag ? true : false);
-            gameWindow.Show();
-        }
-
-        // Открытие окна редактирования игры
-        private void GameEditButton_Click(object sender, RoutedEventArgs e)
-        {
-            EditGameWindow window = new EditGameWindow((int)((Button)sender).Tag);
-            window.ShowDialog();
-            ShowGames();
-        }
-
-        // Открытие окна добавления игры
-        private void AddGame_Click(object sender, RoutedEventArgs e)
-        {
-            EditGameWindow window = new EditGameWindow();
-            window.ShowDialog();
-            ShowGames();
-        }
-
-        // Удаление игры
-        private void DeleteGame_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBoxResult result = MessageBox.Show($"Вы действительно хотите удалить {((Label)(((Grid)(((StackPanel)(((Button)sender).Parent)).Parent)).Children[1])).Content}?", "Удаление игры", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if(result == MessageBoxResult.Yes)
+            try
             {
-                try
+                // Подключение
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = Properties.Settings.Default.userConnection })
                 {
-                    using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.userConnection))
+                    // Открытие подключения
+                    connection.Open();
+                    // Отображение списка разработчиков
+                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Publishers ORDER BY title ASC", connection))
                     {
-                        connection.Open();
-
-                        using (SqlCommand command = new SqlCommand($@"DELETE FROM dbo.Games WHERE dbo.Games.id = @id", connection))
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
                         {
-                            command.Parameters.Add(new SqlParameter("@id", ((Button)sender).Tag));
-                            command.ExecuteNonQuery();
+                            SearchPublishersList.Children.Clear();
+                            while (dataReader.Read())
+                            {
+                                CheckBox item = new CheckBox()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Content = dataReader.GetString(1),
+                                    FontSize = 11
+                                };
+                                SearchPublishersList.Children.Add(item);
+                            }
                         }
                     }
                 }
-                catch (SqlException ex)
-                {
-                    MessageBox.Show($"В процессе обработки данных произошла ошибка:\n{ex}", "Ошибка обработки данных", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
             }
-            ShowGames();
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"В процессе получения данных произошла ошибка:\n{ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        // Обновление списка жанров
+        private void UpdateGenresList()
         {
-            EditWindow window = new EditWindow(int.Parse(((MenuItem)sender).Tag.ToString()));
-            window.ShowDialog();
-            UpdateSearchParameters();
+            try
+            {
+                // Подключение
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = Properties.Settings.Default.userConnection })
+                {
+                    // Открытие подключения
+                    connection.Open();
+                    // Отображение списка разработчиков
+                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Genres ORDER BY title ASC", connection))
+                    {
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
+                        {
+                            SearchGenresList.Children.Clear();
+                            while (dataReader.Read())
+                            {
+                                CheckBox item = new CheckBox()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Content = dataReader.GetString(1),
+                                    FontSize = 11
+                                };
+                                SearchGenresList.Children.Add(item);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"В процессе получения данных произошла ошибка:\n{ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
+        // Обновление списка платформ
+        private void UpdatePlatformsList()
+        {
+            try
+            {
+                // Подключение
+                using (SqlConnection connection = new SqlConnection() { ConnectionString = Properties.Settings.Default.userConnection })
+                {
+                    // Открытие подключения
+                    connection.Open();
+                    // Отображение списка разработчиков
+                    using (SqlCommand command = new SqlCommand("SELECT id, title FROM dbo.Platforms ORDER BY title ASC", connection))
+                    {
+                        // Выполнение запроса   
+                        using (SqlDataReader dataReader = command.ExecuteReader())
+                        {
+                            SearchPlatformsList.Children.Clear();
+                            while (dataReader.Read())
+                            {
+                                CheckBox item = new CheckBox()
+                                {
+                                    Tag = dataReader.GetInt32(0),
+                                    Content = dataReader.GetString(1),
+                                    FontSize = 11
+                                };
+                                SearchPlatformsList.Children.Add(item);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"В процессе получения данных произошла ошибка:\n{ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
     }
 }

@@ -13,9 +13,41 @@ CREATE DATABASE GameDatabase;
 GO
 
 
+-- ==============================================
+-- = 2. Добавление пользователей
+-- ==============================================
+
+USE GameDatabase;
+
+-- Добавление пользователя с правами на чтение
+IF EXISTS (SELECT * FROM sys.sql_logins WHERE name = 'reader')
+DROP LOGIN reader
+GO
+-- Добавление логина
+CREATE LOGIN reader WITH PASSWORD = 'reader'
+GO
+IF EXISTS (SELECT * FROM sys.database_principals WHERE name = 'reader')
+DROP USER reader
+GO
+CREATE USER reader FOR LOGIN reader
+EXEC sp_addrolemember 'db_datareader', 'reader'
+
+-- Добавление администратора
+IF EXISTS (SELECT * FROM sys.sql_logins WHERE name = 'admin')
+DROP LOGIN admin
+GO
+-- Добавление логина
+CREATE LOGIN admin WITH PASSWORD = 'admin'
+GO
+IF EXISTS (SELECT * FROM sys.database_principals WHERE name = 'admin')
+DROP USER admin
+GO
+CREATE USER admin FOR LOGIN admin
+EXEC sp_addrolemember 'db_datareader', 'admin'
+EXEC sp_addrolemember 'db_datawriter', 'admin'
 
 -- ==============================================
--- = 2. Таблицы
+-- = 3. Таблицы
 -- ==============================================
 
 USE GameDatabase;
@@ -207,8 +239,27 @@ CREATE TABLE GameDatabase.dbo.Reviews
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );
+GO
 
+-- ==============================================
+-- = 4. Хранимые процедуры
+-- ==============================================
 
+-- Добавление игр
+CREATE OR ALTER PROCEDURE StrProc_AddGame
+	@title		NVARCHAR(255),
+	@release	DATE,
+	@website	NVARCHAR(255),
+	@summary	NVARCHAR(MAX)
+AS
+BEGIN
+INSERT INTO dbo.Games (title, release_date, website, summary)
+VALUES (@title, @release, @website, @summary)
+END;
+GO
+
+GRANT EXECUTE ON dbo.StrProc_AddGame TO admin
+GO
 
 -- ==============================================
 -- = *. Возврат в master
