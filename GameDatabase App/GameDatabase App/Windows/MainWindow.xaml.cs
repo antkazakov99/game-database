@@ -70,7 +70,7 @@ namespace GameDatabase_App
             {
                 platform.IsChecked = false;
             }
-            SortByComboBox.SelectedIndex = 0;
+            SortByComboBox.SelectedIndex = 5;
             ShowGames();
         }
 
@@ -547,16 +547,16 @@ namespace GameDatabase_App
                     command.CommandText += " ORDER BY dbo.Games.title DESC";
                     break;
                 case "2":
-                    command.CommandText += " ORDER BY dbo.Games.release_date ASC";
+                    command.CommandText += " ORDER BY dbo.Games.release_date ASC, dbo.Games.title ASC";
                     break;
                 case "3":
-                    command.CommandText += " ORDER BY dbo.Games.release_date DESC";
+                    command.CommandText += " ORDER BY dbo.Games.release_date DESC, dbo.Games.title ASC";
                     break;
                 case "4":
-                    command.CommandText += " ORDER BY GameScore.avg_score ASC";
+                    command.CommandText += " ORDER BY GameScore.avg_score ASC, dbo.Games.title ASC";
                     break;
                 case "5":
-                    command.CommandText += " ORDER BY GameScore.avg_score DESC";
+                    command.CommandText += " ORDER BY GameScore.avg_score DESC, dbo.Games.title ASC";
                     break;
             }
             return command;

@@ -231,7 +231,7 @@ namespace GameDatabase_App
                                 if (count == 0)
                                     GameGenres.Text = dataReader.GetString(0);
                                 else
-                                    GameGenres.Text += ", {dataReader.GetString(0)}";
+                                    GameGenres.Text += $", {dataReader.GetString(0)}";
                                 count++;
                             }
                         }

@@ -90,10 +90,11 @@ namespace GameDatabase_App
                                             using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
-                                                using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Developers (game_id, developer_id) VALUES (@game_id, @dev_id)", connection1))
+                                                using (SqlCommand insertCommand = new SqlCommand(@"StrProc_AddGameDeveloper", connection1))
                                                 {
+                                                    insertCommand.CommandType = System.Data.CommandType.StoredProcedure;
                                                     insertCommand.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                                                    insertCommand.Parameters.Add(new SqlParameter("@dev_id", item.TabIndex));
+                                                    insertCommand.Parameters.Add(new SqlParameter("@developer_id", item.TabIndex));
                                                     insertCommand.ExecuteNonQuery();
                                                 }
                                             }
@@ -136,10 +137,11 @@ namespace GameDatabase_App
                                             using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
-                                                using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Publishers (game_id, publisher_id) VALUES (@game_id, @dev_id)", connection1))
+                                                using (SqlCommand insertCommand = new SqlCommand(@"StrProc_AddGamePublisher", connection1))
                                                 {
+                                                    insertCommand.CommandType = System.Data.CommandType.StoredProcedure;
                                                     insertCommand.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                                                    insertCommand.Parameters.Add(new SqlParameter("@dev_id", item.TabIndex));
+                                                    insertCommand.Parameters.Add(new SqlParameter("@publisher_id", item.TabIndex));
                                                     insertCommand.ExecuteNonQuery();
                                                 }
                                             }
@@ -182,10 +184,11 @@ namespace GameDatabase_App
                                             using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
-                                                using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Genres (game_id, genre_id) VALUES (@game_id, @dev_id)", connection1))
+                                                using (SqlCommand insertCommand = new SqlCommand(@"StrProc_AddGameGenre", connection1))
                                                 {
+                                                    insertCommand.CommandType = System.Data.CommandType.StoredProcedure;
                                                     insertCommand.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                                                    insertCommand.Parameters.Add(new SqlParameter("@dev_id", item.TabIndex));
+                                                    insertCommand.Parameters.Add(new SqlParameter("@genre_id", item.TabIndex));
                                                     insertCommand.ExecuteNonQuery();
                                                 }
                                             }
@@ -228,10 +231,11 @@ namespace GameDatabase_App
                                             using (SqlConnection connection1 = new SqlConnection(Properties.Settings.Default.userConnection))
                                             {
                                                 connection1.Open();
-                                                using (SqlCommand insertCommand = new SqlCommand(@"INSERT INTO dbo.Games_Platforms (game_id, platform_id) VALUES (@game_id, @dev_id)", connection1))
+                                                using (SqlCommand insertCommand = new SqlCommand(@"StrProc_AddGamePlatform", connection1))
                                                 {
+                                                    insertCommand.CommandType = System.Data.CommandType.StoredProcedure;
                                                     insertCommand.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
-                                                    insertCommand.Parameters.Add(new SqlParameter("@dev_id", item.TabIndex));
+                                                    insertCommand.Parameters.Add(new SqlParameter("@platform_id", item.TabIndex));
                                                     insertCommand.ExecuteNonQuery();
                                                 }
                                             }
@@ -333,9 +337,9 @@ namespace GameDatabase_App
                                                             using (SqlConnection connection2 = new SqlConnection(Properties.Settings.Default.userConnection))
                                                             {
                                                                 connection2.Open();
-                                                                using (SqlCommand command2 = new SqlCommand(@"INSERT INTO dbo.Reviews (game_id, reviewer_id, score, summary, web_address)
-                                                                    VALUES (@game_id, @reviewer_id, @score, @summary, @url)", connection2))
+                                                                using (SqlCommand command2 = new SqlCommand(@"StrProc_AddReview", connection2))
                                                                 {
+                                                                    command2.CommandType = System.Data.CommandType.StoredProcedure;
                                                                     command2.Parameters.Add(new SqlParameter("@game_id", (int)Tag));
                                                                     command2.Parameters.Add(new SqlParameter("@reviewer_id", dataReader1.GetInt32(0)));
                                                                     DockPanel dock = (DockPanel)item.Children[2];
@@ -349,7 +353,7 @@ namespace GameDatabase_App
                                                                         command2.Parameters.Add(new SqlParameter("@score", DBNull.Value));
                                                                     }
                                                                     command2.Parameters.Add(new SqlParameter("@summary", ((TextBox)item.Children[4]).Text));
-                                                                    command2.Parameters.Add(new SqlParameter("@url", ((TextBox)item.Children[6]).Text));
+                                                                    command2.Parameters.Add(new SqlParameter("@web_address", ((TextBox)item.Children[6]).Text));
                                                                     command2.ExecuteNonQuery();
                                                                 }
                                                             }
@@ -513,7 +517,7 @@ namespace GameDatabase_App
         // Открытие окна редактирования рецензентов
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Внесенные вами изменения не сохраняться. Вы действительно хотите перейти в окно редактирования рецензентов?", 
+            if (MessageBox.Show("Внесенные вами изменения не сохранятся. Вы действительно хотите перейти в окно редактирования рецензентов?", 
                     "Предупреждение", 
                     MessageBoxButton.YesNo, 
                     MessageBoxImage.Warning) == MessageBoxResult.Yes)
